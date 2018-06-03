@@ -62,3 +62,9 @@ dao.init();
 
 **DB schema**: `JdbcCheckpointDao` stores checkpoints in a db table.
 Sample of table schema for MySQL is in file [checkpoint.mysql.sql](../../../../../../../../dbschema/checkpoint/checkpoint.mysql.sql).
+
+**ICheckpointDao's APIs**
+
+- `CheckpointBo getCheckpoint(String)`: get an existing checkpoint by id.
+- `DaoResult setCheckpoint(CheckpointBo)`: save a checkpoint.
+- `DaoResult setCheckpoint(String, Date, String)`: save a checkpoint.
