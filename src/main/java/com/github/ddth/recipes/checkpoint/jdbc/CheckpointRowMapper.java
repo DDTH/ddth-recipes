@@ -15,7 +15,7 @@ import java.util.Date;
  * @since 0.1.0
  */
 @PrimaryKeyColumns(columns = { "cp_id" })
-@UpdateColumns(columns = { "cp_timestamp", "cp_info" })
+@UpdateColumns(columns = { "cp_timestamp", "cp_data" })
 @ColumnAttribute(column = "cp_id", attr = "id", attrClass = String.class)
 @ColumnAttribute(column = "cp_timestamp", attr = "timestamp", attrClass = Date.class)
 @ColumnAttribute(column = "cp_data", attr = "data", attrClass = String.class)
