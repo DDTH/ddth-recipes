@@ -1,6 +1,6 @@
 # ddth-recipes
 
-DDTH's Commony Used Recipes.
+DDTH's Commonly Used Recipes.
 
 Project home:
 [https://github.com/DDTH/ddth-recipes](https://github.com/DDTH/ddth-recipes).
@@ -8,7 +8,7 @@ Project home:
 
 ## Installation
 
-Latest release version: `0.1.0`. See [RELEASE-NOTES.md](RELEASE-NOTES.md).
+Latest release version: `0.1.0.1`. See [RELEASE-NOTES.md](RELEASE-NOTES.md).
 
 Maven dependency:
 

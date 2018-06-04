@@ -17,7 +17,7 @@ public class QndJdbcCheckpointDao {
     }
 
     static DataSource createDataSource() throws SQLException {
-        return new SingleConnectionDataSource(createConnection(), false);
+        return new SingleConnectionDataSource(createConnection(), true);
     }
 
     public static void main(String[] args) throws Exception {

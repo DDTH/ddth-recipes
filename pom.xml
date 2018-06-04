@@ -28,9 +28,16 @@
         <skipTests>true</skipTests>
 
         <version.ddth-dao>0.8.5.1</version.ddth-dao>
+        <version.ddth-commons>0.9.1.4</version.ddth-commons>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
@@ -43,11 +50,23 @@
             <version>5.0.6.RELEASE</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.github.ddth</groupId>
+            <artifactId>ddth-commons-core</artifactId>
+            <version>${version.ddth-commons}</version>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>com.github.ddth</groupId>
             <artifactId>ddth-dao-core</artifactId>
             <version>${version.ddth-dao}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.github.ddth</groupId>
+            <artifactId>ddth-commons-core</artifactId>
+            <version>${version.ddth-commons}</version>
             <optional>true</optional>
         </dependency>
     </dependencies>

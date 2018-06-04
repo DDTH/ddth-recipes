@@ -1,5 +1,10 @@
 # ddth-recipes release notes
 
+## 0.1.0.1 - 2018-06-04
+
+- Bug fixes.
+- Add unit tests for checkpoint recipe.
+
 
 ## 0.1.0 - 2018-06-03
 

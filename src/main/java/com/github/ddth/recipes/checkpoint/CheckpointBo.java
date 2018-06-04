@@ -1,6 +1,9 @@
 package com.github.ddth.recipes.checkpoint;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.github.ddth.commons.utils.SerializationUtils;
 import com.github.ddth.dao.BaseDataJsonFieldBo;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import java.util.Date;
 
@@ -66,7 +69,7 @@ public class CheckpointBo extends BaseDataJsonFieldBo {
      * @return
      */
     public CheckpointBo setId(String id) {
-        setAttribute(FIELD_ID, id != null ? id.trim().toUpperCase() : null);
+        setAttribute(FIELD_ID, id != null ? id.trim() : null);
         return this;
     }
 
@@ -106,4 +109,36 @@ public class CheckpointBo extends BaseDataJsonFieldBo {
         super.setData(value != null ? value.trim() : "{}");
         return this;
     }
+
+    /**
+     * Get checkpoint data as a json node.
+     *
+     * @return
+     * @since 0.1.0.1
+     */
+    public JsonNode getDataAsJson() {
+        String data = getData();
+        return data != null ? SerializationUtils.readJson(data) : null;
+    }
+
+    /*----------------------------------------------------------------------*/
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj instanceof CheckpointBo) {
+            CheckpointBo other = (CheckpointBo) obj;
+            EqualsBuilder eq = new EqualsBuilder().append(this.getId(), other.getId())
+                    .append(this.getTimestamp(), other.getTimestamp())
+                    .append(this.getData(), other.getData());
+            return eq.build();
+        }
+        return false;
+    }
+
 }
