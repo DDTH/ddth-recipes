@@ -58,6 +58,12 @@ dao.setTableName("dr_checkpoint").setJdbcHelper(jdbcHelper);
 dao.init();
 
 //from here, dao can be used to read/write checkpoints
+CheckpointBo cp = dao.getCheckpoint(id);
+DaoResult result = dao.setCheckpoint(id, new Date(), data);
+
+//CheckpointUtils can be helpful
+CheckpointUtils.setCheckpointAttr(dao, id, "name", "Thanh Nguyen");
+String name = CheckpointUtils.getCheckpointAttr(dao, id, "name", String.class).orElse(null);
 ```
 
 **DB schema**: `JdbcCheckpointDao` stores checkpoints in a db table.

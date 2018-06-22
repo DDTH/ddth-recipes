@@ -1,5 +1,10 @@
 # ddth-recipes release notes
 
+## 0.1.1 - 2018-06-21
+
+- New class `CheckpointUtils`.
+
+
 ## 0.1.0.1 - 2018-06-04
 
 - Bug fixes.
