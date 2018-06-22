@@ -10,7 +10,7 @@
 
     <!-- <groupId>com.github.ddth</groupId> -->
     <artifactId>ddth-recipes</artifactId>
-    <version>0.1.0.2-SNAPSHOT</version>
+    <version>0.1.1</version>
     <packaging>jar</packaging>
 
     <name>ddth-recipes</name>
