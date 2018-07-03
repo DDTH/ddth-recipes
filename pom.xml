@@ -27,8 +27,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skipTests>true</skipTests>
 
-        <version.ddth-dao>0.8.5.1</version.ddth-dao>
-        <version.ddth-commons>0.9.1.4</version.ddth-commons>
+        <version.ddth-dao>0.9.0.1</version.ddth-dao>
+        <version.ddth-commons>0.9.1.6</version.ddth-commons>
     </properties>
 
     <dependencies>

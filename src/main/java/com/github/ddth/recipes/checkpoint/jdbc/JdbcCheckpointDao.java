@@ -1,12 +1,12 @@
 package com.github.ddth.recipes.checkpoint.jdbc;
 
+import java.util.Date;
+
 import com.github.ddth.dao.BoId;
-import com.github.ddth.dao.jdbc.AbstractGenericBoJdbcDao;
+import com.github.ddth.dao.jdbc.GenericBoJdbcDao;
 import com.github.ddth.dao.utils.DaoResult;
 import com.github.ddth.recipes.checkpoint.CheckpointBo;
 import com.github.ddth.recipes.checkpoint.ICheckpointDao;
-
-import java.util.Date;
 
 /**
  * JDBC implementation of {@link ICheckpointDao}.
@@ -14,8 +14,7 @@ import java.util.Date;
  * @author Thanh Nguyen <btnguyen2k@gmail.com>
  * @since 0.1.0
  */
-public class JdbcCheckpointDao extends AbstractGenericBoJdbcDao<CheckpointBo>
-        implements ICheckpointDao {
+public class JdbcCheckpointDao extends GenericBoJdbcDao<CheckpointBo> implements ICheckpointDao {
 
     /**
      * {@inheritDoc}
