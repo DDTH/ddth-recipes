@@ -8,7 +8,7 @@ Project home:
 
 ## Installation
 
-Latest release version: `0.1.1.1`. See [RELEASE-NOTES.md](RELEASE-NOTES.md).
+Latest release version: `0.2.0`. See [RELEASE-NOTES.md](RELEASE-NOTES.md).
 
 Maven dependency:
 
@@ -16,12 +16,13 @@ Maven dependency:
 <dependency>
 	<groupId>com.github.ddth</groupId>
 	<artifactId>ddth-recipes</artifactId>
-	<version>0.1.1.1</version>
+	<version>0.2.0</version>
 </dependency>
 ```
 
 ## Recipes
 
+- **API Service**: skeleton to build API service (HTTP, Thrift and gRPC). See [API Service recipe documentation](src/main/java/com/github/ddth/recipes/apiservice/README.md).
 - **Checkpoint**: save work state for latter resuming. See [checkpoint recipe documentation](src/main/java/com/github/ddth/recipes/checkpoint/README.md).
 
 
