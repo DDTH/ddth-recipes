@@ -164,6 +164,7 @@ ApiAuth auth = new ApiAuth("app-id", "access-token");
 System.out.println(router.callApi(context, auth, null));
 ```
 
+
 ## Authenticating API Calls
 
 Client side: pass an `ApiAuth` when calling API.
@@ -174,3 +175,16 @@ There are 2 built-in api-authenticators that can be used:
 - `AllowAllApiAuthenticator` (default): this authenticator simply passes any auth check, which means allowing all API calls.
 - `BasicApiAuthenticator`: this authenticator holds a map of `{app-id:access-code}` and uses it to validate the `ApiAuth` from client.
 
+
+## APIs over Apache Thrift
+
+Thrift definition file: [api_service.thrift](thrift/api_service.thrift).
+
+See examples of [Thrift server, client and SSL support](../../../../../../../test/java/com/github/ddth/recipes/qnd/apiservice/thrift/).
+
+
+## APIs over gRPC
+
+gRPC service definition file: [api_service.proto](grpc/api_service.proto).
+
+See examples of [gRPC server, client and SSL support](../../../../../../../test/java/com/github/ddth/recipes/qnd/apiservice/grpc/).
