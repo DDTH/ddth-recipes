@@ -1,6 +1,6 @@
 # ddth-recipes release notes
 
-## 0.2.0 - 2018-07-22
+## 0.2.0.1 - 2018-07-22
 
 - New recipe: API Service.
 
