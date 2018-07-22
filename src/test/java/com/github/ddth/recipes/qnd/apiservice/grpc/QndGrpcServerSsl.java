@@ -22,14 +22,6 @@ public class QndGrpcServerSsl {
                     new File(privateKeyFilePath), keyFilePassword);
         }
 
-        {
-            String certChainFilePath = "/Users/thanhnb/Workspace/GHN/ghn.vn/cert.pem";
-            String privateKeyFilePath = "/Users/thanhnb/Workspace/GHN/ghn.vn/key.pem";
-            String keyFilePassword = "";
-            sslContext = GrpcApiUtils.buildServerSslContext(new File(certChainFilePath),
-                    new File(privateKeyFilePath), keyFilePassword);
-        }
-
         ApiRouter router = new ApiRouter();
         router.setCatchAllHandler(
                 (context, auth, params) -> new ApiResult(ApiResult.STATUS_OK, ApiResult.MSG_OK,

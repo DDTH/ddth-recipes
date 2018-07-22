@@ -15,33 +15,32 @@ public class QndGrpcClientSsl extends BaseQndGrpcClient {
          * hostname must match certificate's CN value.
          * file!
          */
-        String serverHostsAndPorts = "local.ghn.vn:8443";
+        String serverHostsAndPorts = "localhost:8443";
+        String trustCertCollectionFilePath = "./src/test/resources/keys/server-grpc.cer";
 
         SSLSocketFactory sslSocketFactory;
         //sslSocketFactory = TrustAllTrustManager.TRUST_ALL_SSL_SOCKET_FACTORY;
         //sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
         {
-            String trustCertCollectionFilePath = "/Users/thanhnb/Workspace/GHN/ghn.vn/cert.pem";
+
             SSLContext sslContext = GrpcApiUtils
                     .buildSSLContextForCertificates(new File(trustCertCollectionFilePath));
             sslSocketFactory = sslContext.getSocketFactory();
         }
-
-//        try (GrpcApiClient client = GrpcApiUtils
-//                .createGrpcApiClientSsl(serverHostsAndPorts, true, null, sslSocketFactory)) {
-//            System.out.println("GrpcApiClient with OkHttp...");
-//            try {
-//                doTest(client);
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
+        try (GrpcApiClient client = GrpcApiUtils
+                .createGrpcApiClientSsl(serverHostsAndPorts, true, null, sslSocketFactory)) {
+            System.out.println("GrpcApiClient with OkHttp...");
+            try {
+                doTest(client);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
         System.out.println();
 
         SslContextBuilder sslContextBuilder = GrpcApiUtils.buildClientSslContextBuilder();
         {
-            String trustCertCollectionFilePath = "/Users/thanhnb/Workspace/GHN/ghn.vn/cert.pem";
             sslContextBuilder.trustManager(new File(trustCertCollectionFilePath));
         }
         try (GrpcApiClient client = GrpcApiUtils
