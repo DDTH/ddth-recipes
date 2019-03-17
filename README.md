@@ -8,7 +8,7 @@ Project home:
 
 ## Installation
 
-Latest release version: `0.2.0.1`. See [RELEASE-NOTES.md](RELEASE-NOTES.md).
+Latest release version: `0.3.0`. See [RELEASE-NOTES.md](RELEASE-NOTES.md).
 
 Maven dependency:
 
@@ -16,7 +16,7 @@ Maven dependency:
 <dependency>
 	<groupId>com.github.ddth</groupId>
 	<artifactId>ddth-recipes</artifactId>
-	<version>0.2.0.1</version>
+	<version>0.3.0</version>
 </dependency>
 ```
 
@@ -24,10 +24,11 @@ Maven dependency:
 
 - **API Service**: skeleton to build API service (HTTP, Thrift and gRPC). See [API Service recipe documentation](src/main/java/com/github/ddth/recipes/apiservice/README.md).
 - **Checkpoint**: save work state for latter resuming. See [checkpoint recipe documentation](src/main/java/com/github/ddth/recipes/checkpoint/README.md).
+- **Global**: store/access/share data via a global static class. See [checkpoint recipe documentation](src/main/java/com/github/ddth/recipes/global/README.md).
 
 
 ## License
 
-See LICENSE.txt for details. Copyright (c) 2018 Thanh Ba Nguyen.
+See LICENSE.txt for details. Copyright (c) 2018-2019 Thanh Ba Nguyen.
 
 Third party libraries are distributed under their own licenses.

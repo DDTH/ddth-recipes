@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -27,9 +28,9 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<skipTests>true</skipTests>
 
-		<version.ddth-dao>0.9.0.2</version.ddth-dao>
-		<version.ddth-commons>0.9.1.7</version.ddth-commons>
-		<version.grpc>1.13.2</version.grpc>
+		<version.ddth-dao>0.10.0</version.ddth-dao>
+		<version.ddth-commons>0.9.2</version.ddth-commons>
+		<version.grpc>1.19.0</version.grpc>
 	</properties>
 
 	<dependencies>
@@ -57,8 +58,14 @@
 			<version>${version.ddth-commons}</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>okhttp</artifactId>
+			<version>3.10.0</version>
+			<scope>test</scope>
+		</dependency>
 
-        <!-- for all recipes -->
+		<!-- for all recipes -->
 		<dependency>
 			<groupId>com.github.ddth</groupId>
 			<artifactId>ddth-commons-core</artifactId>
@@ -91,13 +98,13 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-pool2</artifactId>
-			<version>2.6.0</version>
+			<version>2.6.1</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
-			<version>3.6.0</version>
+			<version>3.7.0</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
@@ -127,17 +134,17 @@
 		<dependency>
 			<groupId>org.apache.thrift</groupId>
 			<artifactId>libthrift</artifactId>
-			<version>0.11.0</version>
+			<version>0.12.0</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-tcnative-boringssl-static</artifactId>
-			<version>2.0.8.Final</version>
+			<version>2.0.22.Final</version>
 			<optional>true</optional>
 		</dependency>
-		<!-- <dependency> <groupId>io.netty</groupId> <artifactId>netty-tcnative</artifactId>
-			<version>2.0.8.Final</version> <classifier>${os.detected.classifier}</classifier> 
+		<!-- <dependency> <groupId>io.netty</groupId> <artifactId>netty-tcnative</artifactId> 
+			<version>2.0.22.Final</version> <classifier>${os.detected.classifier}</classifier> 
 			<optional>true</optional> </dependency> -->
 	</dependencies>
 

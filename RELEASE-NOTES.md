@@ -1,5 +1,11 @@
 # ddth-recipes release notes
 
+## 0.3.0 - 2019-03-17
+
+- New recipe: Global.
+- Upgrade dependency libs.
+
+
 ## 0.2.0.1 - 2018-07-22
 
 - New recipe: API Service.
