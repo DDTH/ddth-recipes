@@ -18,7 +18,7 @@ besides libraries required by the web-framework your project is using,
 </dependency>
 <dependency>
     <groupId>com.github.ddth</groupId>
-    <artifactId>ddth-commons-core</artifactId>
+    <artifactId>ddth-commons-serialization</artifactId>
     <version>${ddth-commons-version}</version>
     <type>pom</type>
 </dependency>
@@ -39,7 +39,7 @@ For server:
 </dependency>
 <dependency>
     <groupId>com.github.ddth</groupId>
-    <artifactId>ddth-commons-core</artifactId>
+    <artifactId>ddth-commons-serialization</artifactId>
     <version>${ddth-commons-version}</version>
     <type>pom</type>
 </dependency>
