@@ -4,6 +4,8 @@ _API Service recipe added since version `v0.2.0`._
 
 API Service recipe creates a framework that help building API servers and clients using HTTP(S), Thrift and gRPC.
 
+**Since v0.3.0, API Service requires libthrift v0.12.0+**
+
 ## Maven Dependency
 
 If you plan to build API service over HTTP(S) only (for example: a REST API set),
