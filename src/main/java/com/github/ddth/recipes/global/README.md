@@ -4,28 +4,44 @@ _Global recipe added since version `v0.3.0`._
 
 Global recipe provide a global static class to store/access/share data within the application.
 
-## Maven Dependency
+## Maven dependency
 
 No extra libs are required.
 
-## Usage Examples
+## Usage examples
 
-Add a shutdown hook, which to be called right before application's shutdown:
+**Add a shutdown hook, which to be called right before application's shutdown:**
 
 ```java
 import com.github.ddth.recipes.global.GlobalRegistry;
 
 void myShutdownHook() {
-    closeable.close();
-    logger.info("Close closeable.");
-    executorPool.shutdown();
-    logger.info("Shutdown executorPool");
+    try {
+        logger.info("Closing closeable...");
+        closeable.close();
+    } catch (Exception e) {
+        logger.warn(e.getMessage(), e);
+    }
+
+    try {
+        logger.info("Shutting down executorPool...");
+        executorPool.shutdown();
+    } catch (Exception e) {
+        logger.warn(e.getMessage(), e);
+    }
 }
 
 GlobalRegistry.addShutdownHook(() -> myShutdownHook());
+
+/*
+// multiple hooks can be added
+GlobalRegistry.addShutdownHook(() -> closeable.close());
+GlobalRegistry.addShutdownHook(() -> executorPool.shutdown());
+GlobalRegistry.addShutdownHook(() -> myShutdownHook3());
+ */
 ```
 
-Share data globally:
+**Share data globally:**
 
 ```java
 import com.github.ddth.recipes.global.GlobalRegistry;

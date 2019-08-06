@@ -33,7 +33,9 @@ public interface IGrpcApiClient {
      * @param accessToken
      * @return
      */
-    PApiServiceProto.PApiResult check(String appId, String accessToken);
+    default PApiServiceProto.PApiResult check(String appId, String accessToken) {
+        return check(PApiServiceProto.PApiAuth.newBuilder().setAppId(appId).setAccessToken(accessToken).build());
+    }
 
     /**
      * Call a server API.
@@ -49,12 +51,12 @@ public interface IGrpcApiClient {
      * @param apiName
      * @param appId
      * @param accessToken
-     * @param params
-     *         API parameters to pass to server
+     * @param params      API parameters to pass to server
      * @return
      */
-    PApiServiceProto.PApiResult call(String apiName, String appId, String accessToken,
-            Object params);
+    default PApiServiceProto.PApiResult call(String apiName, String appId, String accessToken, Object params) {
+        return call(apiName, appId, accessToken, PApiServiceProto.PDataEncoding.JSON_DEFAULT, params);
+    }
 
     /**
      * Call a server API.
@@ -62,10 +64,8 @@ public interface IGrpcApiClient {
      * @param apiName
      * @param appId
      * @param accessToken
-     * @param encoding
-     *         data encoding
-     * @param params
-     *         API parameters to pass to server
+     * @param encoding    data encoding
+     * @param params      API parameters to pass to server
      * @return
      */
     PApiServiceProto.PApiResult call(String apiName, String appId, String accessToken,

@@ -1,26 +1,29 @@
 package com.github.ddth.recipes.apiservice;
 
-import com.github.ddth.commons.utils.DateFormatUtils;
-import com.github.ddth.commons.utils.MapUtils;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import com.github.ddth.commons.utils.DateFormatUtils;
+import com.github.ddth.commons.utils.MapUtils;
 
 /**
- * API running context.
+ * API call context.
  *
  * @author Thanh Nguyen <btnguyen2k@gmail.com>
  * @since v0.2.0
  */
 public class ApiContext {
-
     /**
      * Helper method to create new {@link ApiContext}.
      *
-     * @param apiName
-     *         name of the API being called
+     * @param apiName name of the API being called
      * @return
      */
     public static ApiContext newContext(String apiName) {
@@ -30,10 +33,8 @@ public class ApiContext {
     /**
      * Helper method to create new {@link ApiContext}.
      *
-     * @param gateway
-     *         via which gateway the API is being called
-     * @param apiName
-     *         name of the API being called
+     * @param gateway via which gateway the API is being called
+     * @param apiName name of the API being called
      * @return
      */
     public static ApiContext newContext(String gateway, String apiName) {
@@ -51,8 +52,7 @@ public class ApiContext {
     /**
      * Construct a new {@link ApiContext} object.
      *
-     * @param apiName
-     *         name of the API being called
+     * @param apiName name of the API being called
      */
     public ApiContext(String apiName) {
         this(null, apiName, null);
@@ -61,10 +61,8 @@ public class ApiContext {
     /**
      * Construct a new {@link ApiContext} object.
      *
-     * @param gateway
-     *         via which gateway the API is being called
-     * @param apiName
-     *         name of the API being called
+     * @param gateway via which gateway the API is being called
+     * @param apiName name of the API being called
      */
     public ApiContext(String gateway, String apiName) {
         this(gateway, apiName, null);
@@ -73,10 +71,8 @@ public class ApiContext {
     /**
      * Construct a new {@link ApiContext} object.
      *
-     * @param gateway
-     *         via which gateway the API is being called
-     * @param apiName
-     *         name of the API being called
+     * @param gateway     via which gateway the API is being called
+     * @param apiName     name of the API being called
      * @param contextData
      */
     public ApiContext(String gateway, String apiName, Map<String, Object> contextData) {
@@ -110,7 +106,7 @@ public class ApiContext {
      * @return
      */
     public ApiContext setId(String value) {
-        this.id = value;
+        this.id = value != null ? value.trim() : null;
         return this;
     }
 
@@ -216,8 +212,8 @@ public class ApiContext {
     @Override
     public String toString() {
         ToStringBuilder tsb = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
-        tsb.append("id", getId()).append("timestamp",
-                DateFormatUtils.toString(getTimestamp(), DateFormatUtils.DF_ISO8601))
+        tsb.append("id", getId())
+                .append("timestamp", DateFormatUtils.toString(getTimestamp(), DateFormatUtils.DF_ISO8601))
                 .append("context", context);
         return tsb.toString();
     }

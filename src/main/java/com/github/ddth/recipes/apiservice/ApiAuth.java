@@ -17,7 +17,6 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @since v0.2.0
  */
 public class ApiAuth implements Cloneable {
-
     /**
      * A null/empty API auth.
      */
@@ -37,7 +36,7 @@ public class ApiAuth implements Cloneable {
 
     /**
      * ID of application/client who is calling the API.
-     * 
+     *
      * @return
      */
     public String getAppId() {
@@ -45,8 +44,8 @@ public class ApiAuth implements Cloneable {
     }
 
     /**
-     * Setter for {@link #appId}.
-     * 
+     * ID of application/client who is calling the API.
+     *
      * @param appId
      * @return
      */
@@ -57,7 +56,7 @@ public class ApiAuth implements Cloneable {
 
     /**
      * Access token of the application/client who is calling the API.
-     * 
+     *
      * @return
      */
     public String getAccessToken() {
@@ -65,8 +64,8 @@ public class ApiAuth implements Cloneable {
     }
 
     /**
-     * Setter for {@link #accessToken}.
-     * 
+     * Access token of the application/client who is calling the API.
+     *
      * @param accessToken
      * @return
      */
@@ -77,7 +76,7 @@ public class ApiAuth implements Cloneable {
 
     /**
      * List of APIs the application/client is allowed to access.
-     * 
+     *
      * @return
      */
     public Set<String> getAllowedApis() {
@@ -85,8 +84,8 @@ public class ApiAuth implements Cloneable {
     }
 
     /**
-     * Setter for {@link #allowedApis}.
-     * 
+     * List of APIs the application/client is allowed to access.
+     *
      * @param allowedApis
      * @return
      */
@@ -100,7 +99,7 @@ public class ApiAuth implements Cloneable {
 
     /**
      * Add API to allowed list.
-     * 
+     *
      * @param allowedApis
      * @return
      */
@@ -115,26 +114,24 @@ public class ApiAuth implements Cloneable {
 
     /**
      * Check if the application/client is allowed to access a specific API.
-     * 
+     *
      * @param apiName
      * @return
      */
     public boolean isApiAllowed(String apiName) {
-        boolean allowedAllApis = allowedApis == null || allowedApis.size() == 0
-                || allowedApis.contains("*");
+        boolean allowedAllApis = allowedApis == null || allowedApis.size() == 0 || allowedApis.contains("*");
         return allowedAllApis || allowedApis.contains(apiName);
     }
 
     /**
      * Authenticate an API call.
-     * 
+     *
      * @param auth
      * @return
      */
     public boolean authenticate(String apiName, ApiAuth auth) {
-        return StringUtils.equals(getAppId(), auth.getAppId())
-                && StringUtils.equals(getAccessToken(), auth.getAccessToken())
-                && isApiAllowed(apiName);
+        return StringUtils.equals(getAppId(), auth.getAppId()) && StringUtils
+                .equals(getAccessToken(), auth.getAccessToken()) && isApiAllowed(apiName);
     }
 
     /**
@@ -157,8 +154,8 @@ public class ApiAuth implements Cloneable {
         }
         if (obj instanceof ApiAuth) {
             ApiAuth other = (ApiAuth) obj;
-            return StringUtils.equals(getAppId(), other.getAppId())
-                    && StringUtils.equals(getAccessToken(), other.getAccessToken());
+            return StringUtils.equals(getAppId(), other.getAppId()) && StringUtils
+                    .equals(getAccessToken(), other.getAccessToken());
         }
         return false;
     }
@@ -178,7 +175,7 @@ public class ApiAuth implements Cloneable {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * <p>
      * Note: {@link #accessToken} is masked.
      * </p>
@@ -190,21 +187,18 @@ public class ApiAuth implements Cloneable {
             maskedAccessToken = accessToken.substring(0, 4) + maskedAccessToken;
         }
         ToStringBuilder tsb = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
-        tsb.append("app-id", appId).append("access-token", maskedAccessToken).append("allowed-apis",
-                allowedApis);
+        tsb.append("app-id", appId).append("access-token", maskedAccessToken).append("allowed-apis", allowedApis);
         return tsb.toString();
     }
 
     /**
      * Same as {@link #toString()} but {@link #accessToken} is fully displayed.
-     * 
+     *
      * @return
      */
     public String toStringNonSecure() {
         ToStringBuilder tsb = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
-        tsb.append("app-id", appId).append("access-token", accessToken).append("allowed-apis",
-                allowedApis);
+        tsb.append("app-id", appId).append("access-token", accessToken).append("allowed-apis", allowedApis);
         return tsb.toString();
     }
-
 }

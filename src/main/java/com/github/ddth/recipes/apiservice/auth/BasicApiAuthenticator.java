@@ -10,16 +10,15 @@ import com.github.ddth.recipes.apiservice.IApiAuthenticator;
 /**
  * {@link IApiAuthenticator} implementation that performs basic API call
  * authentication.
- * 
+ *
  * <p>
- * This class uses a map of {app-id:api-auth} for authenticating API calls.
+ * This authenticator holds a map {app-id:api-auth}. An API call is allowed if app-id exists in the map and api-auth matches caller's auth info.
  * </p>
- * 
+ *
  * @author Thanh Nguyen <btnguyen2k@gmail.com>
  * @since v0.2.0
  */
 public class BasicApiAuthenticator implements IApiAuthenticator {
-
     public final static BasicApiAuthenticator instance = new BasicApiAuthenticator();
 
     /**
@@ -47,8 +46,7 @@ public class BasicApiAuthenticator implements IApiAuthenticator {
      */
     @Override
     public boolean authenticate(ApiContext context, ApiAuth auth) {
-        ApiAuth myAuth = auth != null && auth.getAppId() != null ? apiAuths.get(auth.getAppId())
-                : null;
+        ApiAuth myAuth = auth != null && auth.getAppId() != null ? apiAuths.get(auth.getAppId()) : null;
         return myAuth != null && myAuth.authenticate(context.getApiName(), auth);
     }
 }

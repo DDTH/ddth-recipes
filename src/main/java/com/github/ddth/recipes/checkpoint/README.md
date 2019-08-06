@@ -1,6 +1,8 @@
 # ddth-recipes: Checkpoint
 
-Checkpoint recipe added since version `v0.1.0`.
+_Checkpoint recipe added since version `v0.1.0`._
+
+## Maven dependency
 
 Checkpoint recipe's built-in implementation uses `ddth-dao-jdbc` to store/retrieve data to/from DB table.
 Add `ddth-dao-jdbc` to Maven dependency list like this:

@@ -1,12 +1,13 @@
 package com.github.ddth.recipes.apiservice;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.github.ddth.commons.utils.SerializationUtils;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.github.ddth.commons.utils.SerializationUtils;
 
 /**
  * Result from API call.
@@ -26,7 +27,6 @@ import java.util.Map;
  * @since v0.2.0
  */
 public class ApiResult implements Cloneable {
-
     public final static int STATUS_OK = 200;
 
     public final static int STATUS_ERROR_CLIENT = 400;
@@ -35,6 +35,12 @@ public class ApiResult implements Cloneable {
     public final static int STATUS_DEPRECATED = 410;
 
     public final static int STATUS_ERROR_SERVER = 500;
+    public final static int STATUS_NOT_IMPLEMENTED = 501;
+
+    public final static String FIELD_STATUS = "status";
+    public final static String FIELD_MESSAGE = "msg";
+    public final static String FIELD_DATA = "data";
+    public final static String FIELD_DEBUG = "debug";
 
     public final static String MSG_OK = "Ok";
 
@@ -42,12 +48,9 @@ public class ApiResult implements Cloneable {
     public final static ApiResult DEFAULT_RESULT_API_DEPRECATED = new ApiResult(STATUS_DEPRECATED,
             "API is deprecated.");
 
-    public final static ApiResult DEFAULT_RESULT_API_NOT_FOUND = new ApiResult(STATUS_ERROR_CLIENT,
-            "API not found");
-    public final static ApiResult DEFAULT_RESULT_NOT_FOUND = new ApiResult(STATUS_NOT_FOUND,
-            "Item not found");
-    public final static ApiResult DEFAULT_RESULT_ACCESS_DENIED = new ApiResult(STATUS_NO_PERMISSION,
-            "Access denied");
+    public final static ApiResult DEFAULT_RESULT_API_NOT_FOUND = new ApiResult(STATUS_ERROR_CLIENT, "API not found");
+    public final static ApiResult DEFAULT_RESULT_NOT_FOUND = new ApiResult(STATUS_NOT_FOUND, "Item not found");
+    public final static ApiResult DEFAULT_RESULT_ACCESS_DENIED = new ApiResult(STATUS_NO_PERMISSION, "Access denied");
     public final static ApiResult DEFAULT_RESULT_UNKNOWN_ERROR = new ApiResult(STATUS_ERROR_SERVER,
             "Unknown error while calling API");
 
@@ -80,10 +83,9 @@ public class ApiResult implements Cloneable {
     }
 
     public static ApiResult resultDeprecated(String newApi) {
-        return newApi == null
-                ? DEFAULT_RESULT_API_DEPRECATED
-                : new ApiResult(STATUS_DEPRECATED,
-                        "API is deprecated. Please migrate to new API [" + newApi + "].");
+        return newApi == null ?
+                DEFAULT_RESULT_API_DEPRECATED :
+                new ApiResult(STATUS_DEPRECATED, "API is deprecated. Please migrate to new API [" + newApi + "].");
     }
 
     private int status;
@@ -158,15 +160,15 @@ public class ApiResult implements Cloneable {
             synchronized (this) {
                 if (map == null) {
                     map = new HashMap<>();
-                    map.put("status", status);
+                    map.put(FIELD_STATUS, status);
                     if (message != null) {
-                        map.put("msg", message);
+                        map.put(FIELD_MESSAGE, message);
                     }
                     if (data != null) {
-                        map.put("data", data);
+                        map.put(FIELD_DATA, data);
                     }
                     if (debugData != null) {
-                        map.put("debug", debugData);
+                        map.put(FIELD_DEBUG, debugData);
                     }
                 }
             }
@@ -191,8 +193,8 @@ public class ApiResult implements Cloneable {
     @Override
     public String toString() {
         ToStringBuilder tsb = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
-        tsb.append("status", status).append("message", message).append("data", data)
-                .append("debug", debugData);
+        tsb.append(FIELD_STATUS, status).append(FIELD_MESSAGE, message).append(FIELD_DATA, data)
+                .append(FIELD_DEBUG, debugData);
         return tsb.toString();
     }
 
@@ -224,5 +226,4 @@ public class ApiResult implements Cloneable {
         clone.setDebugData(debugData);
         return clone;
     }
-
 }

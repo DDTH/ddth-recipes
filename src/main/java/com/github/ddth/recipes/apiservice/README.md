@@ -2,15 +2,20 @@
 
 _API Service recipe added since version `v0.2.0`._
 
-API Service recipe creates a framework that help building API servers and clients using HTTP(S), Thrift and gRPC.
+API Service recipe creates a framework that help building API servers and clients over HTTP, Thrift and gRPC.
+
+- HTTP/Thrift/gRPC are API communication protocols only. Business logic is handled by one single code repository for all communication protocols.
+- Data is interchanged (request/response) in JSON format; can be gzipped to reduce space/transmit time consumption.
 
 **Since v0.3.0, API Service requires libthrift v0.12.0+**
 
 ## Maven Dependency
 
-If you plan to build API service over HTTP(S) only (for example: a REST API set),
+### API Service over HTTP
+
+If you plan to build API service over HTTP only (for example: REST APIs),
 besides libraries required by the web-framework your project is using,
-`ddth-commons-core` and `ddth-commons-serialization` are needed:
+`ddth-commons-core` and `ddth-commons-serialization` are also needed:
 
 ```xml
 <dependency>
@@ -27,9 +32,11 @@ besides libraries required by the web-framework your project is using,
 ```
 
 API Service recipe provides only the skeleton to build your APIs.
-How APIs are served or called over HTTP(S) is totally up to you.
+How APIs are served or called over HTTP is totally up to you.
 
 ### API Service over Apache Thrift
+
+Thrift definition file: [api_service.thrift](thrift/api_service.thrift).
 
 For server:
 
@@ -66,6 +73,8 @@ Highly recommended as Thrift client is _not_ thread-safe.
 ```
 
 ### API Service over gRPC
+
+gRPC service definition file: [api_service.proto](grpc/api_service.proto) and Maven file to generate gRPC stub: [pom.xml](grpc/pom.xml).
 
 For server:
 
@@ -110,7 +119,7 @@ For server:
 For client: same libraries as server. However, for client you can choose either `grpc-netty` or `grpc-okhttp`
 
 ```xml
-<!-- use either Netty or OkHttp for gRpc client -->
+<!-- use either Netty or OkHttp for gRPC client -->
 <dependency>
     <groupId>io.grpc</groupId>
     <artifactId>grpc-okhttp</artifactId>
@@ -127,7 +136,7 @@ For client: same libraries as server. However, for client you can choose either 
 
 Start your API by implementing interface `IApiHandler`. Then, register APIs with the `ApiRouter`.
 `ApiRouter` is responsible for
-- Magaging APIs (registering/unregistering)
+- Managing APIs (registering/unregistering)
 - Authenticating API calls (via `IApiAuthenticator`)
 - Routing API calls to handlers
 - Logging.
@@ -166,7 +175,6 @@ ApiAuth auth = new ApiAuth("app-id", "access-token");
 System.out.println(router.callApi(context, auth, null));
 ```
 
-
 ## Authenticating API Calls
 
 Client side: pass an `ApiAuth` when calling API.
@@ -177,16 +185,9 @@ There are 2 built-in api-authenticators that can be used:
 - `AllowAllApiAuthenticator` (default): this authenticator simply passes any auth check, which means allowing all API calls.
 - `BasicApiAuthenticator`: this authenticator holds a map of `{app-id:access-code}` and uses it to validate the `ApiAuth` from client.
 
+## Examples:
 
-## APIs over Apache Thrift
-
-Thrift definition file: [api_service.thrift](thrift/api_service.thrift).
-
-See examples of [Thrift server, client and SSL support](../../../../../../../test/java/com/github/ddth/recipes/qnd/apiservice/thrift/).
-
-
-## APIs over gRPC
-
-gRPC service definition file: [api_service.proto](grpc/api_service.proto).
-
-See examples of [gRPC server, client and SSL support](../../../../../../../test/java/com/github/ddth/recipes/qnd/apiservice/grpc/).
+- [ApiRRouter & Server examples](../../../../../../../test/java/com/github/ddth/recipes/qnd/apiservice/) examples, include SSL-enabled servers.
+- [gRPC clients](../../../../../../../test/java/com/github/ddth/recipes/qnd/apiservice/grpc), include SSL-enable and async clients.
+- [Thrift clients](../../../../../../../test/java/com/github/ddth/recipes/qnd/apiservice/thrift), include SSL-enable and async clients.
+- [HTTP REST client](../../../../../../../test/java/com/github/ddth/recipes/qnd/apiservice/rest).

@@ -12,7 +12,7 @@ import com.github.ddth.commons.utils.ValueUtils;
 
 /**
  * To store/retrieve/share data with application via static mechanism.
- * 
+ *
  * @author Thanh Nguyen <btnguyen2k@gmail.com>
  * @since 0.3.0
  */
@@ -29,8 +29,8 @@ public class GlobalRegistry {
      * @param r
      */
     public static void addShutdownHook(Runnable r) {
-        shutdownHooks.add(r);
         synchronized (shutdownHooks) {
+            shutdownHooks.add(r);
             if (shutdownHooks.size() == 1) {
                 Runtime.getRuntime().addShutdownHook(new Thread(GlobalRegistry::shutdownHook));
             }
@@ -45,7 +45,6 @@ public class GlobalRegistry {
                 LOGGER.warn(e.getMessage(), e);
             }
         }
-
     }
 
     /*----------------------------------------------------------------------*/
@@ -57,7 +56,7 @@ public class GlobalRegistry {
      *
      * @param key
      * @return the previous value associated with {@code key}, or {@code null} if there was no
-     *         mapping for {@code key}.
+     * mapping for {@code key}.
      */
     public static Object removeFromGlobalStorage(String key) {
         return storage.remove(key);
@@ -69,7 +68,7 @@ public class GlobalRegistry {
      * @param key
      * @param value
      * @return the previous value associated with {@code key}, or {@code null} if there was no
-     *         mapping for {@code key}.
+     * mapping for {@code key}.
      */
     public static Object putToGlobalStorage(String key, Object value) {
         if (value == null) {

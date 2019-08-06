@@ -21,7 +21,7 @@ public final class PApiServiceProto {
       implements com.google.protobuf.ProtocolMessageEnum {
     /**
      * <pre>
-     * Request: default=JSON string, Result: default=same encoding as request's
+     * Request: default='JSON string' /  Result: default=same encoding as request's
      * </pre>
      *
      * <code>JSON_DEFAULT = 0;</code>
@@ -29,7 +29,7 @@ public final class PApiServiceProto {
     JSON_DEFAULT(0),
     /**
      * <pre>
-     * Data is encoded as JSON string
+     * Data is encoded as 'JSON string'
      * </pre>
      *
      * <code>JSON_STRING = 1;</code>
@@ -37,7 +37,7 @@ public final class PApiServiceProto {
     JSON_STRING(1),
     /**
      * <pre>
-     * Data is encoded as gzipped JSON string
+     * Data is encoded as 'gzipped JSON string'
      * </pre>
      *
      * <code>JSON_GZIP = 2;</code>
@@ -48,7 +48,7 @@ public final class PApiServiceProto {
 
     /**
      * <pre>
-     * Request: default=JSON string, Result: default=same encoding as request's
+     * Request: default='JSON string' /  Result: default=same encoding as request's
      * </pre>
      *
      * <code>JSON_DEFAULT = 0;</code>
@@ -56,7 +56,7 @@ public final class PApiServiceProto {
     public static final int JSON_DEFAULT_VALUE = 0;
     /**
      * <pre>
-     * Data is encoded as JSON string
+     * Data is encoded as 'JSON string'
      * </pre>
      *
      * <code>JSON_STRING = 1;</code>
@@ -64,7 +64,7 @@ public final class PApiServiceProto {
     public static final int JSON_STRING_VALUE = 1;
     /**
      * <pre>
-     * Data is encoded as gzipped JSON string
+     * Data is encoded as 'gzipped JSON string'
      * </pre>
      *
      * <code>JSON_GZIP = 2;</code>
@@ -187,6 +187,13 @@ public final class PApiServiceProto {
     }
 
     @java.lang.Override
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(
+        UnusedPrivateParameter unused) {
+      return new PApiAuth();
+    }
+
+    @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
     getUnknownFields() {
       return this.unknownFields;
@@ -199,7 +206,6 @@ public final class PApiServiceProto {
       if (extensionRegistry == null) {
         throw new java.lang.NullPointerException();
       }
-      int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
@@ -223,7 +229,7 @@ public final class PApiServiceProto {
               break;
             }
             default: {
-              if (!parseUnknownFieldProto3(
+              if (!parseUnknownField(
                   input, unknownFields, extensionRegistry, tag)) {
                 done = true;
               }
@@ -372,13 +378,12 @@ public final class PApiServiceProto {
       }
       com.github.ddth.recipes.apiservice.grpc.def.PApiServiceProto.PApiAuth other = (com.github.ddth.recipes.apiservice.grpc.def.PApiServiceProto.PApiAuth) obj;
 
-      boolean result = true;
-      result = result && getAppId()
-          .equals(other.getAppId());
-      result = result && getAccessToken()
-          .equals(other.getAccessToken());
-      result = result && unknownFields.equals(other.unknownFields);
-      return result;
+      if (!getAppId()
+          .equals(other.getAppId())) return false;
+      if (!getAccessToken()
+          .equals(other.getAccessToken())) return false;
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
     }
 
     @java.lang.Override
@@ -563,35 +568,35 @@ public final class PApiServiceProto {
 
       @java.lang.Override
       public Builder clone() {
-        return (Builder) super.clone();
+        return super.clone();
       }
       @java.lang.Override
       public Builder setField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
           java.lang.Object value) {
-        return (Builder) super.setField(field, value);
+        return super.setField(field, value);
       }
       @java.lang.Override
       public Builder clearField(
           com.google.protobuf.Descriptors.FieldDescriptor field) {
-        return (Builder) super.clearField(field);
+        return super.clearField(field);
       }
       @java.lang.Override
       public Builder clearOneof(
           com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-        return (Builder) super.clearOneof(oneof);
+        return super.clearOneof(oneof);
       }
       @java.lang.Override
       public Builder setRepeatedField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
           int index, java.lang.Object value) {
-        return (Builder) super.setRepeatedField(field, index, value);
+        return super.setRepeatedField(field, index, value);
       }
       @java.lang.Override
       public Builder addRepeatedField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
           java.lang.Object value) {
-        return (Builder) super.addRepeatedField(field, value);
+        return super.addRepeatedField(field, value);
       }
       @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
@@ -782,7 +787,7 @@ public final class PApiServiceProto {
       @java.lang.Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.setUnknownFieldsProto3(unknownFields);
+        return super.setUnknownFields(unknownFields);
       }
 
       @java.lang.Override
@@ -878,6 +883,13 @@ public final class PApiServiceProto {
     }
 
     @java.lang.Override
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(
+        UnusedPrivateParameter unused) {
+      return new PApiParams();
+    }
+
+    @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
     getUnknownFields() {
       return this.unknownFields;
@@ -890,7 +902,6 @@ public final class PApiServiceProto {
       if (extensionRegistry == null) {
         throw new java.lang.NullPointerException();
       }
-      int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
@@ -919,7 +930,7 @@ public final class PApiServiceProto {
               break;
             }
             default: {
-              if (!parseUnknownFieldProto3(
+              if (!parseUnknownField(
                   input, unknownFields, extensionRegistry, tag)) {
                 done = true;
               }
@@ -1052,13 +1063,12 @@ public final class PApiServiceProto {
       }
       com.github.ddth.recipes.apiservice.grpc.def.PApiServiceProto.PApiParams other = (com.github.ddth.recipes.apiservice.grpc.def.PApiServiceProto.PApiParams) obj;
 
-      boolean result = true;
-      result = result && encoding_ == other.encoding_;
-      result = result && getParamsData()
-          .equals(other.getParamsData());
-      result = result && expectedReturnEncoding_ == other.expectedReturnEncoding_;
-      result = result && unknownFields.equals(other.unknownFields);
-      return result;
+      if (encoding_ != other.encoding_) return false;
+      if (!getParamsData()
+          .equals(other.getParamsData())) return false;
+      if (expectedReturnEncoding_ != other.expectedReturnEncoding_) return false;
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
     }
 
     @java.lang.Override
@@ -1248,35 +1258,35 @@ public final class PApiServiceProto {
 
       @java.lang.Override
       public Builder clone() {
-        return (Builder) super.clone();
+        return super.clone();
       }
       @java.lang.Override
       public Builder setField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
           java.lang.Object value) {
-        return (Builder) super.setField(field, value);
+        return super.setField(field, value);
       }
       @java.lang.Override
       public Builder clearField(
           com.google.protobuf.Descriptors.FieldDescriptor field) {
-        return (Builder) super.clearField(field);
+        return super.clearField(field);
       }
       @java.lang.Override
       public Builder clearOneof(
           com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-        return (Builder) super.clearOneof(oneof);
+        return super.clearOneof(oneof);
       }
       @java.lang.Override
       public Builder setRepeatedField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
           int index, java.lang.Object value) {
-        return (Builder) super.setRepeatedField(field, index, value);
+        return super.setRepeatedField(field, index, value);
       }
       @java.lang.Override
       public Builder addRepeatedField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
           java.lang.Object value) {
-        return (Builder) super.addRepeatedField(field, value);
+        return super.addRepeatedField(field, value);
       }
       @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
@@ -1449,7 +1459,7 @@ public final class PApiServiceProto {
       @java.lang.Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.setUnknownFieldsProto3(unknownFields);
+        return super.setUnknownFields(unknownFields);
       }
 
       @java.lang.Override
@@ -1550,11 +1560,17 @@ public final class PApiServiceProto {
       super(builder);
     }
     private PApiResult() {
-      status_ = 0;
       message_ = "";
       encoding_ = 0;
       resultData_ = com.google.protobuf.ByteString.EMPTY;
       debugData_ = com.google.protobuf.ByteString.EMPTY;
+    }
+
+    @java.lang.Override
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(
+        UnusedPrivateParameter unused) {
+      return new PApiResult();
     }
 
     @java.lang.Override
@@ -1570,7 +1586,6 @@ public final class PApiServiceProto {
       if (extensionRegistry == null) {
         throw new java.lang.NullPointerException();
       }
-      int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
@@ -1609,7 +1624,7 @@ public final class PApiServiceProto {
               break;
             }
             default: {
-              if (!parseUnknownFieldProto3(
+              if (!parseUnknownField(
                   input, unknownFields, extensionRegistry, tag)) {
                 done = true;
               }
@@ -1790,18 +1805,17 @@ public final class PApiServiceProto {
       }
       com.github.ddth.recipes.apiservice.grpc.def.PApiServiceProto.PApiResult other = (com.github.ddth.recipes.apiservice.grpc.def.PApiServiceProto.PApiResult) obj;
 
-      boolean result = true;
-      result = result && (getStatus()
-          == other.getStatus());
-      result = result && getMessage()
-          .equals(other.getMessage());
-      result = result && encoding_ == other.encoding_;
-      result = result && getResultData()
-          .equals(other.getResultData());
-      result = result && getDebugData()
-          .equals(other.getDebugData());
-      result = result && unknownFields.equals(other.unknownFields);
-      return result;
+      if (getStatus()
+          != other.getStatus()) return false;
+      if (!getMessage()
+          .equals(other.getMessage())) return false;
+      if (encoding_ != other.encoding_) return false;
+      if (!getResultData()
+          .equals(other.getResultData())) return false;
+      if (!getDebugData()
+          .equals(other.getDebugData())) return false;
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
     }
 
     @java.lang.Override
@@ -2001,35 +2015,35 @@ public final class PApiServiceProto {
 
       @java.lang.Override
       public Builder clone() {
-        return (Builder) super.clone();
+        return super.clone();
       }
       @java.lang.Override
       public Builder setField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
           java.lang.Object value) {
-        return (Builder) super.setField(field, value);
+        return super.setField(field, value);
       }
       @java.lang.Override
       public Builder clearField(
           com.google.protobuf.Descriptors.FieldDescriptor field) {
-        return (Builder) super.clearField(field);
+        return super.clearField(field);
       }
       @java.lang.Override
       public Builder clearOneof(
           com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-        return (Builder) super.clearOneof(oneof);
+        return super.clearOneof(oneof);
       }
       @java.lang.Override
       public Builder setRepeatedField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
           int index, java.lang.Object value) {
-        return (Builder) super.setRepeatedField(field, index, value);
+        return super.setRepeatedField(field, index, value);
       }
       @java.lang.Override
       public Builder addRepeatedField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
           java.lang.Object value) {
-        return (Builder) super.addRepeatedField(field, value);
+        return super.addRepeatedField(field, value);
       }
       @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
@@ -2288,7 +2302,7 @@ public final class PApiServiceProto {
       @java.lang.Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.setUnknownFieldsProto3(unknownFields);
+        return super.setUnknownFields(unknownFields);
       }
 
       @java.lang.Override
@@ -2395,6 +2409,13 @@ public final class PApiServiceProto {
     }
 
     @java.lang.Override
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(
+        UnusedPrivateParameter unused) {
+      return new PApiContext();
+    }
+
+    @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
     getUnknownFields() {
       return this.unknownFields;
@@ -2407,7 +2428,6 @@ public final class PApiServiceProto {
       if (extensionRegistry == null) {
         throw new java.lang.NullPointerException();
       }
-      int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
@@ -2451,7 +2471,7 @@ public final class PApiServiceProto {
               break;
             }
             default: {
-              if (!parseUnknownFieldProto3(
+              if (!parseUnknownField(
                   input, unknownFields, extensionRegistry, tag)) {
                 done = true;
               }
@@ -2616,21 +2636,20 @@ public final class PApiServiceProto {
       }
       com.github.ddth.recipes.apiservice.grpc.def.PApiServiceProto.PApiContext other = (com.github.ddth.recipes.apiservice.grpc.def.PApiServiceProto.PApiContext) obj;
 
-      boolean result = true;
-      result = result && getApiName()
-          .equals(other.getApiName());
-      result = result && (hasApiAuth() == other.hasApiAuth());
+      if (!getApiName()
+          .equals(other.getApiName())) return false;
+      if (hasApiAuth() != other.hasApiAuth()) return false;
       if (hasApiAuth()) {
-        result = result && getApiAuth()
-            .equals(other.getApiAuth());
+        if (!getApiAuth()
+            .equals(other.getApiAuth())) return false;
       }
-      result = result && (hasApiParams() == other.hasApiParams());
+      if (hasApiParams() != other.hasApiParams()) return false;
       if (hasApiParams()) {
-        result = result && getApiParams()
-            .equals(other.getApiParams());
+        if (!getApiParams()
+            .equals(other.getApiParams())) return false;
       }
-      result = result && unknownFields.equals(other.unknownFields);
-      return result;
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
     }
 
     @java.lang.Override
@@ -2840,35 +2859,35 @@ public final class PApiServiceProto {
 
       @java.lang.Override
       public Builder clone() {
-        return (Builder) super.clone();
+        return super.clone();
       }
       @java.lang.Override
       public Builder setField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
           java.lang.Object value) {
-        return (Builder) super.setField(field, value);
+        return super.setField(field, value);
       }
       @java.lang.Override
       public Builder clearField(
           com.google.protobuf.Descriptors.FieldDescriptor field) {
-        return (Builder) super.clearField(field);
+        return super.clearField(field);
       }
       @java.lang.Override
       public Builder clearOneof(
           com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-        return (Builder) super.clearOneof(oneof);
+        return super.clearOneof(oneof);
       }
       @java.lang.Override
       public Builder setRepeatedField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
           int index, java.lang.Object value) {
-        return (Builder) super.setRepeatedField(field, index, value);
+        return super.setRepeatedField(field, index, value);
       }
       @java.lang.Override
       public Builder addRepeatedField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
           java.lang.Object value) {
-        return (Builder) super.addRepeatedField(field, value);
+        return super.addRepeatedField(field, value);
       }
       @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
@@ -2990,7 +3009,7 @@ public final class PApiServiceProto {
         return this;
       }
 
-      private com.github.ddth.recipes.apiservice.grpc.def.PApiServiceProto.PApiAuth apiAuth_ = null;
+      private com.github.ddth.recipes.apiservice.grpc.def.PApiServiceProto.PApiAuth apiAuth_;
       private com.google.protobuf.SingleFieldBuilderV3<
           com.github.ddth.recipes.apiservice.grpc.def.PApiServiceProto.PApiAuth, com.github.ddth.recipes.apiservice.grpc.def.PApiServiceProto.PApiAuth.Builder, com.github.ddth.recipes.apiservice.grpc.def.PApiServiceProto.PApiAuthOrBuilder> apiAuthBuilder_;
       /**
@@ -3107,7 +3126,7 @@ public final class PApiServiceProto {
         return apiAuthBuilder_;
       }
 
-      private com.github.ddth.recipes.apiservice.grpc.def.PApiServiceProto.PApiParams apiParams_ = null;
+      private com.github.ddth.recipes.apiservice.grpc.def.PApiServiceProto.PApiParams apiParams_;
       private com.google.protobuf.SingleFieldBuilderV3<
           com.github.ddth.recipes.apiservice.grpc.def.PApiServiceProto.PApiParams, com.github.ddth.recipes.apiservice.grpc.def.PApiServiceProto.PApiParams.Builder, com.github.ddth.recipes.apiservice.grpc.def.PApiServiceProto.PApiParamsOrBuilder> apiParamsBuilder_;
       /**
@@ -3226,7 +3245,7 @@ public final class PApiServiceProto {
       @java.lang.Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.setUnknownFieldsProto3(unknownFields);
+        return super.setUnknownFields(unknownFields);
       }
 
       @java.lang.Override
@@ -3324,19 +3343,11 @@ public final class PApiServiceProto {
       "ithub.ddth.recipes.apiservice.grpc.defB\020" +
       "PApiServiceProtoH\001P\000b\006proto3"
     };
-    com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
-          public com.google.protobuf.ExtensionRegistry assignDescriptors(
-              com.google.protobuf.Descriptors.FileDescriptor root) {
-            descriptor = root;
-            return null;
-          }
-        };
-    com.google.protobuf.Descriptors.FileDescriptor
+    descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
           com.google.protobuf.EmptyProto.getDescriptor(),
-        }, assigner);
+        });
     internal_static_PApiAuth_descriptor =
       getDescriptor().getMessageTypes().get(0);
     internal_static_PApiAuth_fieldAccessorTable = new

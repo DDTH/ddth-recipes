@@ -2,13 +2,13 @@
 
 DDTH's Commonly Used Recipes.
 
-Project home:
-[https://github.com/DDTH/ddth-recipes](https://github.com/DDTH/ddth-recipes).
+Project home: [https://github.com/DDTH/ddth-recipes](https://github.com/DDTH/ddth-recipes).
 
+`ddth-recipes` requires Java 11+ since v1.0.0.
 
 ## Installation
 
-Latest release version: `0.3.0`. See [RELEASE-NOTES.md](RELEASE-NOTES.md).
+Latest release version: `1.0.0`. See [RELEASE-NOTES.md](RELEASE-NOTES.md).
 
 Maven dependency:
 
@@ -16,7 +16,7 @@ Maven dependency:
 <dependency>
 	<groupId>com.github.ddth</groupId>
 	<artifactId>ddth-recipes</artifactId>
-	<version>0.3.0</version>
+	<version>1.0.0</version>
 </dependency>
 ```
 

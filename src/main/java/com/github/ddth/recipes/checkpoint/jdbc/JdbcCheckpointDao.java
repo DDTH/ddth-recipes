@@ -15,7 +15,6 @@ import com.github.ddth.recipes.checkpoint.ICheckpointDao;
  * @since 0.1.0
  */
 public class JdbcCheckpointDao extends GenericBoJdbcDao<CheckpointBo> implements ICheckpointDao {
-
     /**
      * {@inheritDoc}
      */

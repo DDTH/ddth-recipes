@@ -6,12 +6,11 @@ import com.github.ddth.recipes.apiservice.IApiAuthenticator;
 
 /**
  * {@link IApiAuthenticator} implementation that allows all API calls.
- * 
+ *
  * @author Thanh Nguyen <btnguyen2k@gmail.com>
  * @since v0.2.0
  */
 public class AllowAllApiAuthenticator implements IApiAuthenticator {
-
     public final static AllowAllApiAuthenticator instance = new AllowAllApiAuthenticator();
 
     /**
@@ -21,5 +20,4 @@ public class AllowAllApiAuthenticator implements IApiAuthenticator {
     public boolean authenticate(ApiContext context, ApiAuth auth) {
         return true;
     }
-
 }

@@ -1,11 +1,12 @@
 package com.github.ddth.recipes.checkpoint;
 
+import java.util.Date;
+
+import org.apache.commons.lang3.builder.EqualsBuilder;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.ddth.commons.utils.SerializationUtils;
 import com.github.ddth.dao.BaseDataJsonFieldBo;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-
-import java.util.Date;
 
 /**
  * Represent a checkpoint data.
@@ -14,7 +15,6 @@ import java.util.Date;
  * @since 0.1.0
  */
 public class CheckpointBo extends BaseDataJsonFieldBo {
-
     /**
      * Helper method to create a new checkpoint instance.
      *
@@ -22,7 +22,7 @@ public class CheckpointBo extends BaseDataJsonFieldBo {
      * @return
      */
     public static CheckpointBo newInstance(String id) {
-        return newInstance(id, null);
+        return newInstance(id, new Date());
     }
 
     /**
@@ -134,11 +134,9 @@ public class CheckpointBo extends BaseDataJsonFieldBo {
         if (obj instanceof CheckpointBo) {
             CheckpointBo other = (CheckpointBo) obj;
             EqualsBuilder eq = new EqualsBuilder().append(this.getId(), other.getId())
-                    .append(this.getTimestamp(), other.getTimestamp())
-                    .append(this.getData(), other.getData());
+                    .append(this.getTimestamp(), other.getTimestamp()).append(this.getData(), other.getData());
             return eq.build();
         }
         return false;
     }
-
 }

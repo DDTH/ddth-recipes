@@ -1,16 +1,18 @@
 package com.github.ddth.recipes.test.checkpoint;
 
-import com.github.ddth.commons.utils.ReflectionUtils;
-import com.github.ddth.dao.utils.DaoResult;
-import com.github.ddth.recipes.checkpoint.CheckpointBo;
-import com.github.ddth.recipes.checkpoint.ICheckpointDao;
-import junit.framework.TestCase;
+import java.lang.reflect.Method;
+import java.util.Date;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 
-import java.lang.reflect.Method;
-import java.util.Date;
+import com.github.ddth.commons.utils.ReflectionUtils;
+import com.github.ddth.dao.utils.DaoResult;
+import com.github.ddth.recipes.checkpoint.CheckpointBo;
+import com.github.ddth.recipes.checkpoint.ICheckpointDao;
+
+import junit.framework.TestCase;
 
 public abstract class BaseFunctionalCheckpointTest extends TestCase {
 
@@ -58,7 +60,7 @@ public abstract class BaseFunctionalCheckpointTest extends TestCase {
 
         CheckpointBo cpGet = checkpointDao.getCheckpoint("id");
         Assert.assertNotNull(cpGet);
-
+        
         Assert.assertEquals(cpOrg, cpGet);
     }
 

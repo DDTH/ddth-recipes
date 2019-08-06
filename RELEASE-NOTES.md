@@ -1,5 +1,10 @@
 # ddth-recipes release notes
 
+## 1.0.0 - 2019-08-05
+
+- Migrate to `Java 11`.
+
+
 ## 0.3.0 - 2019-03-17
 
 - New recipe: Global.

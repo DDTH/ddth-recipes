@@ -25,7 +25,6 @@ import com.github.ddth.commons.utils.SerializationUtils;
  * @since v0.2.0
  */
 public class ApiParams implements Cloneable {
-
     private JsonNode params;
 
     /**
@@ -37,14 +36,13 @@ public class ApiParams implements Cloneable {
 
     /**
      * Construct a new {@link ApiParams} object.
-     * 
-     * @param params
-     *            must be an {@link ObjectNode} or null
+     *
+     * @param params must be an {@link ObjectNode} or {@code null}
      */
     public ApiParams(JsonNode params) {
-        this.params = params != null && !(params instanceof NullNode)
-                && !(params instanceof MissingNode) ? params
-                        : JsonNodeFactory.instance.objectNode();
+        this.params = params != null && !(params instanceof NullNode) && !(params instanceof MissingNode) ?
+                params :
+                JsonNodeFactory.instance.objectNode();
         ensureParams();
     }
 
@@ -60,33 +58,31 @@ public class ApiParams implements Cloneable {
 
     /**
      * Construct a new {@link ApiParams} object.
-     * 
+     *
      * @param params
      */
     public ApiParams(Map<String, Object> params) {
-        this.params = params != null ? JacksonUtils.toJson(params)
-                : JsonNodeFactory.instance.objectNode();
+        this.params = params != null ? JacksonUtils.toJson(params) : JsonNodeFactory.instance.objectNode();
         ensureParams();
     }
 
     /**
      * Construct a new {@link ApiParams} object.
-     * 
-     * @param params
-     *            must be serialized to {@link ObjectNode}
+     *
+     * @param params must be serialized to {@link ObjectNode}
      */
     public ApiParams(Object params) {
-        this.params = params != null && !(params instanceof NullNode)
-                && !(params instanceof MissingNode) ? JacksonUtils.toJson(params)
-                        : JsonNodeFactory.instance.objectNode();
+        this.params = params != null && !(params instanceof NullNode) && !(params instanceof MissingNode) ?
+                JacksonUtils.toJson(params) :
+                JsonNodeFactory.instance.objectNode();
         ensureParams();
     }
 
     private void ensureParams() {
         if (!(params instanceof ObjectNode)) {
-            throw new IllegalArgumentException("Parameters must be of type ["
-                    + ObjectNode.class.getName() + "], current type: "
-                    + (params != null ? params.getClass().getName() : "[null]"));
+            throw new IllegalArgumentException(
+                    "Parameters must be of type [" + ObjectNode.class.getName() + "], current type: " + (
+                            params != null ? params.getClass().getName() : "[null]"));
         }
     }
 
@@ -232,5 +228,4 @@ public class ApiParams implements Cloneable {
         tsb.append("params", params);
         return tsb.toString();
     }
-
 }

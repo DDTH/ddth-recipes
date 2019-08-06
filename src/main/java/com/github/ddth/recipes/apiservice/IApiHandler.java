@@ -1,8 +1,8 @@
 package com.github.ddth.recipes.apiservice;
 
 /**
- * Handle API calls.
- * 
+ * Interface that handles API calls.
+ *
  * @author Thanh Nguyen <btnguyen2k@gmail.com>
  * @since v0.2.0
  */

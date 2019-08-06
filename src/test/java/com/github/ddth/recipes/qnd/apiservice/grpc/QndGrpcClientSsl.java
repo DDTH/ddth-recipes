@@ -1,7 +1,7 @@
 package com.github.ddth.recipes.qnd.apiservice.grpc;
 
 import com.github.ddth.recipes.apiservice.grpc.GrpcApiClient;
-import com.github.ddth.recipes.apiservice.grpc.GrpcApiUtils;
+import com.github.ddth.recipes.apiservice.grpc.GrpcUtils;
 import io.netty.handler.ssl.SslContextBuilder;
 
 import javax.net.ssl.SSLContext;
@@ -23,35 +23,23 @@ public class QndGrpcClientSsl extends BaseQndGrpcClient {
         //sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
         {
 
-            SSLContext sslContext = GrpcApiUtils
-                    .buildSSLContextForCertificates(new File(trustCertCollectionFilePath));
+            SSLContext sslContext = GrpcUtils.buildSSLContextForCertificates(new File(trustCertCollectionFilePath));
             sslSocketFactory = sslContext.getSocketFactory();
         }
-        try (GrpcApiClient client = GrpcApiUtils
+        try (GrpcApiClient client = GrpcUtils
                 .createGrpcApiClientSsl(serverHostsAndPorts, true, null, sslSocketFactory)) {
-            System.out.println("GrpcApiClient with OkHttp...");
-            try {
-                doTest(client);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            doTest(client);
         }
 
         System.out.println();
 
-        SslContextBuilder sslContextBuilder = GrpcApiUtils.buildClientSslContextBuilder();
+        SslContextBuilder sslContextBuilder = GrpcUtils.buildClientSslContextBuilder();
         {
             sslContextBuilder.trustManager(new File(trustCertCollectionFilePath));
         }
-        try (GrpcApiClient client = GrpcApiUtils
-                .createGrpcApiClientSsl(serverHostsAndPorts, false, sslContextBuilder.build(),
-                        null)) {
-            System.out.println("GrpcApiClient with Netty...");
-            try {
-                doTest(client);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        try (GrpcApiClient client = GrpcUtils
+                .createGrpcApiClientSsl(serverHostsAndPorts, false, sslContextBuilder.build(), null)) {
+            doTest(client);
         }
     }
 }

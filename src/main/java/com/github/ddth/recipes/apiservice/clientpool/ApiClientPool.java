@@ -1,5 +1,13 @@
 package com.github.ddth.recipes.apiservice.clientpool;
 
+import java.io.Closeable;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.Random;
+import java.util.UUID;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.pool2.BasePooledObjectFactory;
 import org.apache.commons.pool2.ObjectPool;
@@ -9,54 +17,42 @@ import org.apache.commons.pool2.impl.DefaultPooledObject;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
-import java.io.Closeable;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.util.Random;
-import java.util.UUID;
-
 /**
  * Pool of API clients.
  *
- * @param <C>
- *         Client class
- * @param <I>
- *         Client interface
+ * @param <C> Client class
+ * @param <I> Client interface
  * @author Thanh Nguyen <btnguyen2k@gmail.com>
  * @since 0.2.0
  */
-public class ApiClientPool<C, I> implements Closeable {
+public class ApiClientPool<C extends I, I> implements Closeable {
     private Class<C> clientClass;
     private Class<I> clientInterface;
     private RetryPolicy retryPolicy;
     private ObjectPool<I> clientPool;
     private IClientFactory<C> clientFactory;
-    private GenericObjectPoolConfig poolConfig;
+    private GenericObjectPoolConfig<I> poolConfig;
 
     public ApiClientPool() {
         // EMPTY
     }
 
-    public ApiClientPool(Class<C> clientClass, Class<I> clientInterface,
-            IClientFactory<C> clientFactory) {
+    public ApiClientPool(Class<C> clientClass, Class<I> clientInterface, IClientFactory<C> clientFactory) {
         this(clientClass, clientInterface, clientFactory, null, null);
     }
 
-    public ApiClientPool(Class<C> clientClass, Class<I> clientInterface,
-            IClientFactory<C> clientFactory, GenericObjectPoolConfig poolConfig) {
+    public ApiClientPool(Class<C> clientClass, Class<I> clientInterface, IClientFactory<C> clientFactory,
+            GenericObjectPoolConfig<I> poolConfig) {
         this(clientClass, clientInterface, clientFactory, poolConfig, null);
     }
 
-    public ApiClientPool(Class<C> clientClass, Class<I> clientInterface,
-            IClientFactory<C> clientFactory, RetryPolicy retryPolicy) {
+    public ApiClientPool(Class<C> clientClass, Class<I> clientInterface, IClientFactory<C> clientFactory,
+            RetryPolicy retryPolicy) {
         this(clientClass, clientInterface, clientFactory, null, retryPolicy);
     }
 
-    public ApiClientPool(Class<C> clientClass, Class<I> clientInterface,
-            IClientFactory<C> clientFactory, GenericObjectPoolConfig poolConfig,
-            RetryPolicy retryPolicy) {
+    public ApiClientPool(Class<C> clientClass, Class<I> clientInterface, IClientFactory<C> clientFactory,
+            GenericObjectPoolConfig<I> poolConfig, RetryPolicy retryPolicy) {
         this.clientClass = clientClass;
         this.clientInterface = clientInterface;
         this.poolConfig = poolConfig;
@@ -67,7 +63,7 @@ public class ApiClientPool<C, I> implements Closeable {
     /*----------------------------------------------------------------------*/
 
     /**
-     * Getter for {@link #clientClass}.
+     * Concrete client class to create instance from.
      *
      * @return
      */
@@ -76,7 +72,7 @@ public class ApiClientPool<C, I> implements Closeable {
     }
 
     /**
-     * Setter for {@link #clientClass}.
+     * Concrete client class to create instance from.
      *
      * @param clientClass
      * @return
@@ -87,7 +83,7 @@ public class ApiClientPool<C, I> implements Closeable {
     }
 
     /**
-     * Getter for {@link #clientInterface}.
+     * Client interface class to implement.
      *
      * @return
      */
@@ -96,7 +92,7 @@ public class ApiClientPool<C, I> implements Closeable {
     }
 
     /**
-     * Setter for {@link #clientInterface}.
+     * Client interface class to implement.
      *
      * @param clientInterface
      * @return
@@ -107,7 +103,7 @@ public class ApiClientPool<C, I> implements Closeable {
     }
 
     /**
-     * Getter for {@link #retryPolicy}.
+     * Policy to apply retry.
      *
      * @return
      */
@@ -116,7 +112,7 @@ public class ApiClientPool<C, I> implements Closeable {
     }
 
     /**
-     * Setter for {@link #retryPolicy}.
+     * Policy to apply retry.
      *
      * @param retryPolicy
      * @return
@@ -127,7 +123,7 @@ public class ApiClientPool<C, I> implements Closeable {
     }
 
     /**
-     * Getter for {@link #clientFactory}.
+     * Factory to create client instances.
      *
      * @return
      */
@@ -136,7 +132,7 @@ public class ApiClientPool<C, I> implements Closeable {
     }
 
     /**
-     * Setter for {@link #clientFactory}.
+     * Factory to create client instances.
      *
      * @param clientFactory
      * @return
@@ -151,7 +147,7 @@ public class ApiClientPool<C, I> implements Closeable {
      *
      * @return
      */
-    public BaseObjectPoolConfig getPoolConfig() {
+    public BaseObjectPoolConfig<I> getPoolConfig() {
         return poolConfig;
     }
 
@@ -161,7 +157,7 @@ public class ApiClientPool<C, I> implements Closeable {
      * @param poolConfig
      * @return
      */
-    public ApiClientPool<C, I> setPoolConfig(GenericObjectPoolConfig poolConfig) {
+    public ApiClientPool<C, I> setPoolConfig(GenericObjectPoolConfig<I> poolConfig) {
         this.poolConfig = poolConfig;
         return this;
     }
@@ -170,8 +166,7 @@ public class ApiClientPool<C, I> implements Closeable {
     public ApiClientPool<C, I> init() {
         if (clientPool == null) {
             if (clientFactory == null) {
-                throw new IllegalStateException(
-                        "No " + IClientFactory.class.getName() + " instance found!");
+                throw new IllegalStateException("No " + IClientFactory.class.getName() + " instance found");
             }
             if (retryPolicy == null) {
                 retryPolicy = RetryPolicy.DEFAULT_RETRY_POLICY;
@@ -223,20 +218,19 @@ public class ApiClientPool<C, I> implements Closeable {
             try {
                 clientPool.returnObject(borrowedClient);
             } catch (Exception e) {
-                throw e instanceof RuntimeException
-                        ? (RuntimeException) e
-                        : new RuntimeException(e);
+                throw e instanceof RuntimeException ? (RuntimeException) e : new RuntimeException(e);
             }
         }
     }
 
     /*----------------------------------------------------------------------*/
     private final class ClientPooledFactory extends BasePooledObjectFactory<I> {
+        @SuppressWarnings("unchecked")
         @Override
         public I create() {
-            Object proxyObj = Proxy.newProxyInstance(clientInterface.getClassLoader(),
-                    new Class<?>[] { clientInterface },
-                    new ReconnectingClientProxy(retryPolicy.clone()));
+            Object proxyObj = Proxy
+                    .newProxyInstance(clientInterface.getClassLoader(), new Class<?>[] { clientInterface },
+                            new ReconnectingClientProxy(retryPolicy.clone()));
             return (I) proxyObj;
         }
 
@@ -245,6 +239,7 @@ public class ApiClientPool<C, I> implements Closeable {
             return new DefaultPooledObject<>(obj);
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public void destroyObject(PooledObject<I> pooledObj) {
             I obj = pooledObj.getObject();
@@ -258,8 +253,39 @@ public class ApiClientPool<C, I> implements Closeable {
     }
 
     /*----------------------------------------------------------------------*/
+    private static Random RANDOM = new Random(System.currentTimeMillis());
 
-    private Random RANDOM = new Random(System.currentTimeMillis());
+    /**
+     * Calculate next server-index-hash from current retry-policy's state.
+     *
+     * @param mutableRetryPolicy
+     * @param numServers
+     * @return
+     * @since 1.0.0
+     */
+    public static int calcNextServerIndexHash(RetryPolicy mutableRetryPolicy, int numServers) {
+        switch (mutableRetryPolicy.getRetryType()) {
+        case FAILOVER:
+            return mutableRetryPolicy.getCounter();
+        case ROUND_ROBIN:
+            if (mutableRetryPolicy.getCounter() == 0) {
+                return mutableRetryPolicy.setLastServerIndexHash(RANDOM.nextInt(Short.MAX_VALUE) % numServers)
+                        .getLastServerIndexHash();
+            } else {
+                return mutableRetryPolicy.setLastServerIndexHash(mutableRetryPolicy.getLastServerIndexHash() + 1)
+                        .getLastServerIndexHash();
+            }
+        case RANDOM_FAILOVER:
+            if (mutableRetryPolicy.getCounter() == 0 || numServers < 2) {
+                return 0;
+            } else {
+                return 1 + (RANDOM.nextInt(Short.MAX_VALUE) % (numServers - 1));
+            }
+        case RANDOM:
+        default:
+            return RANDOM.nextInt(Short.MAX_VALUE);
+        }
+    }
 
     /**
      * Helper proxy class. Attempts to call method on proxy object wrapped in try/catch. If it
@@ -284,8 +310,15 @@ public class ApiClientPool<C, I> implements Closeable {
         @SuppressWarnings("unchecked")
         @Override
         public boolean equals(Object obj) {
-            ReconnectingClientProxy other = (ReconnectingClientProxy) obj;
-            return id.equals(other.id);
+            if (this == obj) {
+                return true;
+            }
+            try {
+                ReconnectingClientProxy other = (ReconnectingClientProxy) obj;
+                return id.equals(other.id);
+            } catch (ClassCastException e) {
+                return false;
+            }
         }
 
         /**
@@ -343,45 +376,14 @@ public class ApiClientPool<C, I> implements Closeable {
             }
 
             retryPolicy.reset();
-            return invokeWithRetries(proxy, method, args);
+            return invokeWithRetries(method, args);
         }
 
-        private int calcServerIndexHash() {
-            int serverIndexHash = 0;
-            int numServers = clientFactory.getNumServers();
-            switch (retryPolicy.getRetryType()) {
-            case FAILOVER:
-                serverIndexHash = retryPolicy.getCounter();
-                break;
-            case ROUND_ROBIN:
-                if (retryPolicy.getCounter() == 0) {
-                    serverIndexHash = RANDOM.nextInt(Short.MAX_VALUE) % numServers;
-                } else {
-                    serverIndexHash = retryPolicy.getLastServerIndexHash() + 1;
-                }
-                retryPolicy.setLastServerIndexHash(serverIndexHash);
-                break;
-            case RANDOM_FAILOVER:
-                if (retryPolicy.getCounter() == 0 || numServers < 2) {
-                    serverIndexHash = 0;
-                } else {
-                    serverIndexHash = 1 + (RANDOM.nextInt(Short.MAX_VALUE) % (numServers - 1));
-                }
-                break;
-            case RANDOM:
-            default:
-                serverIndexHash = RANDOM.nextInt(Short.MAX_VALUE);
-                break;
-            }
-            return serverIndexHash;
-        }
-
-        private Object invokeWithRetries(Object proxy, Method method, Object[] args)
-                throws Throwable {
+        private Object invokeWithRetries(Method method, Object[] args) throws Throwable {
             boolean hasError = false;
             while (!retryPolicy.isMaxRetriesExceeded()) {
                 C oldClientObj = clientObj;
-                int serverIndexHash = calcServerIndexHash();
+                int serverIndexHash = calcNextServerIndexHash(retryPolicy, clientFactory.getNumServers());
                 try {
                     C clientObj = getClientObj(hasError, serverIndexHash);
                     return method.invoke(clientObj, args);
@@ -405,7 +407,5 @@ public class ApiClientPool<C, I> implements Closeable {
             }
             return null;
         }
-
     }
-
 }

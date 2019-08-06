@@ -1,13 +1,14 @@
 package com.github.ddth.recipes.apiservice.auth;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.X509TrustManager;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.X509TrustManager;
 
 /**
  * An implementation of trust manager that doesn't actually verify the certificates and just passes
@@ -20,10 +21,8 @@ import java.security.cert.X509Certificate;
  * @since 0.2.0
  */
 public class TrustAllTrustManager implements X509TrustManager {
-
     public final static TrustAllTrustManager INSTANCE = new TrustAllTrustManager();
-    public final static TrustAllTrustManager[] TRUST_ALL_CERTS = new TrustAllTrustManager[] {
-            INSTANCE };
+    public final static TrustAllTrustManager[] TRUST_ALL_CERTS = new TrustAllTrustManager[] { INSTANCE };
     public final static SSLContext TRUST_ALL_SSL_CONTEXT;
     public final static SSLSocketFactory TRUST_ALL_SSL_SOCKET_FACTORY;
 
@@ -38,14 +37,12 @@ public class TrustAllTrustManager implements X509TrustManager {
     }
 
     @Override
-    public void checkClientTrusted(X509Certificate[] x509Certificates, String s)
-            throws CertificateException {
+    public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
         //EMPTY
     }
 
     @Override
-    public void checkServerTrusted(X509Certificate[] x509Certificates, String s)
-            throws CertificateException {
+    public void checkServerTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
         //EMPTY
     }
 

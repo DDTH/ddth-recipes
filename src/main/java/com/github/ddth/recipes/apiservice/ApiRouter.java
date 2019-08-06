@@ -1,14 +1,17 @@
 package com.github.ddth.recipes.apiservice;
 
+import com.github.ddth.commons.utils.DateFormatUtils;
 import com.github.ddth.commons.utils.MapUtils;
 import com.github.ddth.recipes.apiservice.auth.AllowAllApiAuthenticator;
+import com.google.common.util.concurrent.AtomicLongMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Route API calls to handlers.
@@ -17,12 +20,14 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @since v0.2.0
  */
 public class ApiRouter implements AutoCloseable {
+    private Logger LOGGER = LoggerFactory.getLogger(ApiRouter.class);
 
     private Map<String, IApiHandler> apiHandlers = new ConcurrentHashMap<>();
-    private AtomicInteger concurency = new AtomicInteger(0);
     private IApiAuthenticator apiAuthenticator = AllowAllApiAuthenticator.instance;
-    private Logger apiLogger = LoggerFactory.getLogger(ApiRouter.class);
-    private Logger LOGGER = LoggerFactory.getLogger(ApiRouter.class);
+    private IApiLogger apiLogger;
+
+    private AtomicLong totalConcurrency = new AtomicLong(0);
+    private AtomicLongMap<String> apiConcurrency = AtomicLongMap.create();
 
     /**
      * Init method.
@@ -64,7 +69,7 @@ public class ApiRouter implements AutoCloseable {
     public final static String CATCHALL_API_NAME = "*";
 
     /**
-     * Set the handler that "catch all" API calls when there is no matched one.
+     * Set the handler that "catch all" API calls when there is no matched handler.
      *
      * @param handler
      * @return
@@ -75,7 +80,7 @@ public class ApiRouter implements AutoCloseable {
 
     /**
      * Unset the handler that "catch all" API calls when there is no matched
-     * one.
+     * handler.
      *
      * @return
      */
@@ -169,12 +174,45 @@ public class ApiRouter implements AutoCloseable {
     }
 
     /**
-     * Get number of concurrent API calls.
+     * Get number of total concurrent API calls.
      *
      * @return
      */
     public long getConcurency() {
-        return concurency.get();
+        return totalConcurrency.get();
+    }
+
+    /**
+     * Get number of concurrent API calls.
+     *
+     * @param apiName
+     * @return
+     * @since 1.0.0
+     */
+    public long getConcurency(String apiName) {
+        return apiConcurrency.get(apiName);
+    }
+
+    /**
+     * Logger used to log API calls.
+     *
+     * @param logger
+     * @return
+     * @since 1.0.0
+     */
+    public ApiRouter setApiLogger(IApiLogger logger) {
+        this.apiLogger = logger;
+        return this;
+    }
+
+    /**
+     * Logger used to log API calls.
+     *
+     * @return
+     * @since 1.0.0
+     */
+    protected IApiLogger getApiLogger() {
+        return apiLogger;
     }
 
     /**
@@ -182,9 +220,9 @@ public class ApiRouter implements AutoCloseable {
      *
      * @param logger
      * @return
+     * @deprecated use {@link #setApiLogger(IApiLogger)}
      */
     public ApiRouter setApiLogger(Logger logger) {
-        this.apiLogger = logger;
         return this;
     }
 
@@ -193,9 +231,9 @@ public class ApiRouter implements AutoCloseable {
      *
      * @param loggerName
      * @return
+     * @deprecated use {@link #setApiLogger(IApiLogger)}
      */
     public ApiRouter setApiLoggerName(String loggerName) {
-        this.apiLogger = LoggerFactory.getLogger(loggerName);
         return this;
     }
 
@@ -208,28 +246,29 @@ public class ApiRouter implements AutoCloseable {
      * @return
      * @throws Exception
      */
-    public ApiResult callApi(ApiContext context, ApiAuth auth, ApiParams params) throws Exception {
-        long now = System.currentTimeMillis();
+    public ApiResult callApi(ApiContext context, ApiAuth auth, ApiParams params) {
+        Date now = new Date();
         ApiResult apiResult = null;
+        String apiName = context.getApiName();
         try {
-            concurency.incrementAndGet();
-            if (apiLogger != null && apiLogger.isInfoEnabled()) {
-                apiLogger.info(context.getId() + "\t" + context.getTimestamp() + "\t"
-                        + context.getGateway() + "\t" + context.getApiName() + "\tSTART");
+            totalConcurrency.incrementAndGet();
+            apiConcurrency.incrementAndGet(apiName);
+            if (apiLogger != null) {
+                apiLogger.preApiCall(totalConcurrency.get(), apiConcurrency.get(apiName), context, auth, params);
             }
+
             IApiAuthenticator apiAuthenticator = getApiAuthenticator();
             if (apiAuthenticator != null && !apiAuthenticator.authenticate(context, auth)) {
                 apiResult = new ApiResult(ApiResult.STATUS_NO_PERMISSION,
-                        "App [" + auth.getAppId() + "] is not allowed to call api ["
-                                + context.getApiName() + "] via [" + context.getGateway() + "]!");
+                        "App [" + auth.getAppId() + "] is not allowed to call api [" + apiName + "] via [" + context
+                                .getGateway() + "]");
             } else {
                 try {
-                    String apiName = context.getApiName();
                     IApiHandler apiHandler = apiName != null ? apiHandlers.get(apiName) : null;
                     apiHandler = apiHandler != null ? apiHandler : catchAllApiHandler;
                     if (apiHandler == null) {
-                        apiResult = new ApiResult(ApiResult.STATUS_NOT_FOUND,
-                                "No handler for api [" + context.getApiName() + "]!");
+                        apiResult = new ApiResult(ApiResult.STATUS_NOT_IMPLEMENTED,
+                                "No handler for api [" + apiName + "]");
                     } else {
                         apiResult = apiHandler.handle(context, auth, params);
                     }
@@ -239,18 +278,15 @@ public class ApiRouter implements AutoCloseable {
                     LOGGER.error(e.getMessage(), e);
                 }
             }
-            long d = System.currentTimeMillis() - now;
-            return apiResult
-                    .setDebugData(MapUtils.createMap("t", now, "d", d, "c", concurency.get()));
+            return apiResult.setDebugData(
+                    MapUtils.createMap("t", now, "tstr", DateFormatUtils.toString(now, DateFormatUtils.DF_ISO8601), "d",
+                            System.currentTimeMillis() - now.getTime(), "c", totalConcurrency.get()));
         } finally {
-            concurency.decrementAndGet();
-            long d = System.currentTimeMillis() - now;
-            if (apiLogger != null && apiLogger.isInfoEnabled()) {
-                apiLogger.info(context.getId() + "\t" + context.getTimestamp() + "\t"
-                        + context.getGateway() + "\t" + context.getApiName() + "\tEND\t"
-                        + (apiResult != null ? apiResult.getStatus() : "[null]") + "\t" + d);
+            totalConcurrency.decrementAndGet();
+            apiConcurrency.decrementAndGet(apiName);
+            if (apiLogger != null) {
+                apiLogger.postApiCall(System.currentTimeMillis() - now.getTime(), context, auth, params, apiResult);
             }
         }
     }
-
 }

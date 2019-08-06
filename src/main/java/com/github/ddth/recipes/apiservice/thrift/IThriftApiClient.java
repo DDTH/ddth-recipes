@@ -1,5 +1,6 @@
 package com.github.ddth.recipes.apiservice.thrift;
 
+import com.github.ddth.recipes.apiservice.thrift.def.TApiAuth;
 import com.github.ddth.recipes.apiservice.thrift.def.TApiResult;
 import com.github.ddth.recipes.apiservice.thrift.def.TApiService;
 import com.github.ddth.recipes.apiservice.thrift.def.TDataEncoding;
@@ -20,7 +21,9 @@ public interface IThriftApiClient extends TApiService.Iface {
      * @return
      * @throws TException
      */
-    TApiResult check(String appId, String accessToken) throws TException;
+    default TApiResult check(String appId, String accessToken) throws TException {
+        return check(new TApiAuth().setAppId(appId).setAccessToken(accessToken));
+    }
 
     /**
      * Call a server API, using default data encoding.
@@ -28,13 +31,13 @@ public interface IThriftApiClient extends TApiService.Iface {
      * @param apiName
      * @param appId
      * @param accessToken
-     * @param params
-     *         API parameters to pass to server
+     * @param params      API parameters to pass to server
      * @return
      * @throws TException
      */
-    TApiResult call(String apiName, String appId, String accessToken, Object params)
-            throws TException;
+    default TApiResult call(String apiName, String appId, String accessToken, Object params) throws TException {
+        return call(apiName, appId, accessToken, TDataEncoding.JSON_DEFAULT, params);
+    }
 
     /**
      * Call a server API.
@@ -42,13 +45,11 @@ public interface IThriftApiClient extends TApiService.Iface {
      * @param apiName
      * @param appId
      * @param accessToken
-     * @param encoding
-     *         data encoding
-     * @param params
-     *         API parameters to pass to server
+     * @param encoding    data encoding
+     * @param params      API parameters to pass to server
      * @return
      * @throws TException
      */
-    TApiResult call(String apiName, String appId, String accessToken, TDataEncoding encoding,
-            Object params) throws TException;
+    TApiResult call(String apiName, String appId, String accessToken, TDataEncoding encoding, Object params)
+            throws TException;
 }

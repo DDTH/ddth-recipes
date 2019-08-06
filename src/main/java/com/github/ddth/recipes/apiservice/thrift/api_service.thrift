@@ -16,9 +16,9 @@ rm -rf gen-java \
 namespace java com.github.ddth.recipes.apiservice.thrift.def
 
 enum TDataEncoding {
-    JSON_DEFAULT    = 0,    // Request: default=JSON string, Result: default=same encoding as request's
-    JSON_STRING     = 1,    // Data is encoded as JSON string
-    JSON_GZIP       = 2     // Data is encoded as gzipped JSON string
+    JSON_DEFAULT    = 0,    // Request: default='JSON string' / Result: default=same encoding as request's
+    JSON_STRING     = 1,    // Data is encoded as 'JSON string'
+    JSON_GZIP       = 2     // Data is encoded as 'gzipped JSON string'
 }
 
 struct TApiAuth {

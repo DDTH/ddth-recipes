@@ -1,95 +1,111 @@
 package com.github.ddth.recipes.apiservice.thrift;
 
-import com.github.ddth.recipes.apiservice.clientpool.HostAndPort;
-import com.github.ddth.recipes.apiservice.clientpool.RetryPolicy;
+import com.github.ddth.recipes.apiservice.clientpool.AbstractClient;
+import com.google.common.collect.Sets;
+import org.apache.thrift.transport.TTransportException;
+
+import java.io.File;
+import java.util.Set;
 
 /**
- * Thrift API client.
+ * Base class for Thrift API client implementations.
  *
  * @author Thanh Nguyen <btnguyen2k@gmail.com>
  * @since v0.2.0
  */
-public abstract class BaseThriftApiClient implements AutoCloseable {
+public abstract class BaseThriftApiClient extends AbstractClient {
+    protected final static Set<Integer> RESTARTABLE_CAUSES = Sets
+            .newHashSet(TTransportException.UNKNOWN, TTransportException.NOT_OPEN, TTransportException.TIMED_OUT,
+                    TTransportException.END_OF_FILE, TTransportException.CORRUPTED_DATA);
 
-    private RetryPolicy retryPolicy;
-    private String serverHostsAndPorts = "127.0.0.1:8080";
-    private HostAndPort[] hostAndPorts;
     private int timeoutMs = 0;
 
+    /**
+     * If {@code true}, use compact protocol.
+     */
     private boolean compactProtocol = true;
+
+    /**
+     * If {@code true} use SSL transport.
+     */
     private boolean sslTransport = false;
 
+    private String trustStorePath;
+    private String trustStorePassword;
+
     /**
-     * Getter for {@link #retryPolicy}.
+     * Path to Java trust store.
      *
      * @return
      */
-    public RetryPolicy getRetryPolicy() {
-        return retryPolicy;
+    protected String getTrustStorePath() {
+        return trustStorePath;
     }
 
     /**
-     * Setter for {@link #retryPolicy}.
+     * Path to Java trust store.
      *
-     * @param retryPolicy
+     * @param trustStorePath
      * @return
      */
-    public BaseThriftApiClient setRetryPolicy(RetryPolicy retryPolicy) {
-        this.retryPolicy = retryPolicy;
+    public BaseThriftApiClient setTrustStorePath(String trustStorePath) {
+        this.trustStorePath = trustStorePath;
         return this;
     }
 
     /**
-     * Get list of parsed server host and ports.
+     * Path to Java trust store.
      *
+     * @param trustStoreFile
      * @return
      */
-    protected HostAndPort[] getServerHostAndPortList() {
-        return hostAndPorts;
-    }
-
-    /**
-     * Getter for {@link #serverHostsAndPorts}.
-     *
-     * @return
-     */
-    public String getServerHostsAndPorts() {
-        return serverHostsAndPorts;
-    }
-
-    /**
-     * setter for {@link #serverHostsAndPorts}.
-     *
-     * @param serverHostsAndPorts
-     * @return
-     */
-    public BaseThriftApiClient setServerHostsAndPorts(String serverHostsAndPorts) {
-        this.serverHostsAndPorts = serverHostsAndPorts;
+    public BaseThriftApiClient setTrustStorePath(File trustStoreFile) {
+        this.trustStorePath = trustStoreFile.getAbsolutePath();
         return this;
     }
 
     /**
-     * Getter for {@link #timeoutMs}.
+     * Password to open trust store.
      *
      * @return
      */
-    public int getTimeoutMs() {
+    protected String getTrustStorePassword() {
+        return trustStorePassword;
+    }
+
+    /**
+     * Password to open trust store.
+     *
+     * @param trustStorePassword
+     * @return
+     */
+    public BaseThriftApiClient setTrustStorePassword(String trustStorePassword) {
+        this.trustStorePassword = trustStorePassword;
+        return this;
+    }
+
+    /**
+     * Timeout in milliseconds.
+     *
+     * @return
+     */
+    public int getTimeout() {
         return timeoutMs;
     }
 
     /**
-     * Setter for {@link #timeoutMs}.
+     * Timeout in milliseconds.
      *
      * @param timeoutMs
      * @return
      */
-    public BaseThriftApiClient setTimeoutMs(int timeoutMs) {
+    public BaseThriftApiClient setTimeout(int timeoutMs) {
         this.timeoutMs = timeoutMs;
         return this;
     }
 
     /**
-     * Getter for {@link #compactProtocol}.
+     * If {@code true}, use compact protocol.
      *
      * @return
      */
@@ -98,7 +114,7 @@ public abstract class BaseThriftApiClient implements AutoCloseable {
     }
 
     /**
-     * Setter for {@link #compactProtocol}.
+     * If {@code true}, use compact protocol.
      *
      * @param compactProtocol
      * @return
@@ -109,7 +125,7 @@ public abstract class BaseThriftApiClient implements AutoCloseable {
     }
 
     /**
-     * Getter for {@link #sslTransport}.
+     * If {@code true} use SSL transport.
      *
      * @return
      */
@@ -118,7 +134,7 @@ public abstract class BaseThriftApiClient implements AutoCloseable {
     }
 
     /**
-     * Setter for {@link #sslTransport}.
+     * If {@code true} use SSL transport.
      *
      * @param sslTransport
      * @return
@@ -134,47 +150,31 @@ public abstract class BaseThriftApiClient implements AutoCloseable {
      * @return
      */
     public BaseThriftApiClient disableSslTransport() {
-        this.sslTransport = false;
-        return this;
+        return setSslTransport(false);
     }
 
-
-    /*----------------------------------------------------------------------*/
-
     /**
-     * Initializing method.
+     * Enable SSL transport.
      *
+     * @param trustStorePath
+     * @param trustStorePassword
      * @return
-     * @throws Exception
      */
-    public BaseThriftApiClient init() throws Exception {
-        if (retryPolicy == null) {
-            retryPolicy = RetryPolicy.DEFAULT_RETRY_POLICY;
-        }
-
-        //parse server hosts and ports
-        String tokens[] = serverHostsAndPorts.split("[,;\\s]+");
-        int numServers = tokens.length;
-        hostAndPorts = new HostAndPort[numServers];
-        for (int i = 0; i < numServers; i++) {
-            hostAndPorts[i] = new HostAndPort(tokens[i]);
-        }
-
+    public BaseThriftApiClient enableSslTransport(String trustStorePath, String trustStorePassword) {
+        setSslTransport(true);
+        this.trustStorePath = trustStorePath;
+        this.trustStorePassword = trustStorePassword;
         return this;
     }
 
     /**
-     * Destroy method.
+     * Enable SSL transport.
+     *
+     * @param trustStoreFile
+     * @param trustStorePassword
+     * @return
      */
-    public void destroy() {
-        //EMPTY
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void close() {
-        destroy();
+    public BaseThriftApiClient enableSslTransport(File trustStoreFile, String trustStorePassword) {
+        return enableSslTransport(trustStoreFile.getAbsolutePath(), trustStorePassword);
     }
 }

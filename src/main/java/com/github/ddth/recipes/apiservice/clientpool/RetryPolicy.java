@@ -10,7 +10,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @since 0.2.0
  */
 public class RetryPolicy implements Cloneable {
-    public static enum RetryType {
+    public enum RetryType {
         /**
          * <ul>
          * <li>First connection: choose a random server.</li>
@@ -41,15 +41,14 @@ public class RetryPolicy implements Cloneable {
          */
         RANDOM_FAILOVER(3);
 
-        private final int value;
+        public final int value;
 
         RetryType(int value) {
             this.value = value;
         }
     }
 
-    public static RetryPolicy DEFAULT_RETRY_POLICY = new RetryPolicy(3, 1000,
-            RetryType.ROUND_ROBIN);
+    public static RetryPolicy DEFAULT_RETRY_POLICY = new RetryPolicy(3, 1000, RetryType.ROUND_ROBIN);
 
     private int counter = 0;
     private int numRetries = 3;
@@ -118,9 +117,10 @@ public class RetryPolicy implements Cloneable {
         return this;
     }
 
-    public void reset() {
+    public RetryPolicy reset() {
         counter = 0;
         lastServerIndexHash = 0;
+        return this;
     }
 
     public int getCounter() {
@@ -131,13 +131,15 @@ public class RetryPolicy implements Cloneable {
         return counter >= numRetries;
     }
 
-    public void sleep() throws InterruptedException {
+    public RetryPolicy sleep() throws InterruptedException {
         counter++;
         Thread.sleep(sleepMsBetweenRetries);
+        return this;
     }
 
-    public void incCounter() {
+    public RetryPolicy incCounter() {
         counter++;
+        return this;
     }
 
     /**
@@ -149,8 +151,8 @@ public class RetryPolicy implements Cloneable {
     public String toString() {
         ToStringBuilder tsb = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
         tsb.append("counter", counter).append("numRetries", numRetries)
-                .append("sleepMsBetweenRetries", sleepMsBetweenRetries)
-                .append("retryType", retryType).append("lastServerIndexHash", lastServerIndexHash);
+                .append("sleepMsBetweenRetries", sleepMsBetweenRetries).append("retryType", retryType)
+                .append("lastServerIndexHash", lastServerIndexHash);
         return tsb.toString();
     }
 
@@ -164,5 +166,15 @@ public class RetryPolicy implements Cloneable {
         } catch (CloneNotSupportedException e) {
             return null;
         }
+    }
+
+    /**
+     * Clone to new {@link RetryPolicy} instance.
+     *
+     * @return
+     * @since 1.0.0
+     */
+    public RetryPolicy cloneReset() {
+        return clone().reset();
     }
 }

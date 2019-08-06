@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>com.github.ddth</groupId>
 		<artifactId>ddth-parent</artifactId>
-		<version>6</version>
+		<version>11</version>
 	</parent>
 
 	<!-- <groupId>com.github.ddth</groupId> -->
@@ -27,9 +27,9 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<skipTests>true</skipTests>
 
-		<version.ddth-dao>0.10.0</version.ddth-dao>
-		<version.ddth-commons>0.9.2</version.ddth-commons>
-		<version.grpc>1.19.0</version.grpc>
+		<version.ddth-dao>1.1.1</version.ddth-dao>
+		<version.ddth-commons>1.1.0</version.ddth-commons>
+		<version.grpc>1.22.1</version.grpc>
 	</properties>
 
 	<dependencies>
@@ -62,6 +62,20 @@
 			<artifactId>okhttp</artifactId>
 			<version>3.10.0</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.undertow</groupId>
+			<artifactId>undertow-core</artifactId>
+			<version>2.0.22.Final</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- for Java 9+: add support for javax.annotation.Generated annotation -->
+		<dependency>
+			<groupId>javax.annotation</groupId>
+			<artifactId>javax.annotation-api</artifactId>
+			<version>1.3.2</version>
+			<scope>compile</scope>
 		</dependency>
 
 		<!-- for all recipes -->
@@ -97,13 +111,13 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-pool2</artifactId>
-			<version>2.6.1</version>
+			<version>2.7.0</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
-			<version>3.7.0</version>
+			<version>3.9.1</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
@@ -139,11 +153,11 @@
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-tcnative-boringssl-static</artifactId>
-			<version>2.0.22.Final</version>
+			<version>2.0.25.Final</version>
 			<optional>true</optional>
 		</dependency>
 		<!-- <dependency> <groupId>io.netty</groupId> <artifactId>netty-tcnative</artifactId> 
-			<version>2.0.22.Final</version> <classifier>${os.detected.classifier}</classifier> 
+			<version>2.0.25.Final</version> <classifier>${os.detected.classifier}</classifier>
 			<optional>true</optional> </dependency> -->
 	</dependencies>
 
@@ -151,7 +165,7 @@
 		<extensions>
 			<!-- Use os-maven-plugin to initialize the "os.detected" properties -->
 			<!-- <extension> <groupId>kr.motd.maven</groupId> <artifactId>os-maven-plugin</artifactId> 
-				<version>1.6.0</version> </extension> -->
+				<version>1.6.2</version> </extension> -->
 		</extensions>
 		<plugins>
 			<plugin>

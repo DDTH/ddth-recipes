@@ -11,7 +11,7 @@ public interface IClientFactory<C> {
     /**
      * Create a new API client object.
      *
-     * @param serverIndexHash
+     * @param serverIndexHash index of the server (if there are multiple servers) this client should connect to
      * @return
      * @throws Exception
      */

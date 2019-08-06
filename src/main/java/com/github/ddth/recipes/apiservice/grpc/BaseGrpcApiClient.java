@@ -1,26 +1,29 @@
 package com.github.ddth.recipes.apiservice.grpc;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.github.ddth.commons.utils.SerializationUtils;
+import com.github.ddth.recipes.apiservice.clientpool.AbstractClient;
 import com.github.ddth.recipes.apiservice.clientpool.HostAndPort;
 import com.github.ddth.recipes.apiservice.clientpool.RetryPolicy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.github.ddth.recipes.apiservice.grpc.def.PApiServiceProto;
+import io.grpc.ManagedChannel;
+import io.grpc.netty.NettyChannelBuilder;
+import io.grpc.okhttp.OkHttpChannelBuilder;
 
-import java.util.Random;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLSocketFactory;
+import java.util.function.Function;
 
 /**
- * Thrift API client.
+ * Base class for gRPC API client implementations.
  *
  * @author Thanh Nguyen <btnguyen2k@gmail.com>
  * @since v0.2.0
  */
-public abstract class BaseGrpcApiClient implements AutoCloseable {
-
-    private final Logger LOGGER = LoggerFactory.getLogger(BaseGrpcApiClient.class);
-
-    private RetryPolicy retryPolicy;
-    private String serverHostsAndPorts = "127.0.0.1:8080";
-    private HostAndPort[] hostAndPorts;
-
+public abstract class BaseGrpcApiClient extends AbstractClient {
+    /**
+     * If {@code true} use SSL transport.
+     */
     private boolean sslTransport = false;
 
     /**
@@ -29,56 +32,17 @@ public abstract class BaseGrpcApiClient implements AutoCloseable {
     private boolean useOkHttp = false;
 
     /**
-     * Getter for {@link #retryPolicy}.
-     *
-     * @return
+     * {@link io.netty.handler.ssl.SslContext} used by Netty.
      */
-    public RetryPolicy getRetryPolicy() {
-        return retryPolicy;
-    }
+    private io.netty.handler.ssl.SslContext nettySslContext;
 
     /**
-     * Setter for {@link #retryPolicy}.
-     *
-     * @param retryPolicy
-     * @return
+     * {@link SSLSocketFactory} used by OkHttp
      */
-    public BaseGrpcApiClient setRetryPolicy(RetryPolicy retryPolicy) {
-        this.retryPolicy = retryPolicy;
-        return this;
-    }
+    private SSLSocketFactory sslSocketFactory;
 
     /**
-     * Get list of parsed server host and ports.
-     *
-     * @return
-     */
-    protected HostAndPort[] getServerHostAndPortList() {
-        return hostAndPorts;
-    }
-
-    /**
-     * Getter for {@link #serverHostsAndPorts}.
-     *
-     * @return
-     */
-    public String getServerHostsAndPorts() {
-        return serverHostsAndPorts;
-    }
-
-    /**
-     * setter for {@link #serverHostsAndPorts}.
-     *
-     * @param serverHostsAndPorts
-     * @return
-     */
-    public BaseGrpcApiClient setServerHostsAndPorts(String serverHostsAndPorts) {
-        this.serverHostsAndPorts = serverHostsAndPorts;
-        return this;
-    }
-
-    /**
-     * Getter for {@link #useOkHttp}.
+     * If {@code true} use OkHttp lib, otherwise use Netty lib.
      *
      * @return
      */
@@ -87,7 +51,7 @@ public abstract class BaseGrpcApiClient implements AutoCloseable {
     }
 
     /**
-     * Setter for {@link #useOkHttp}.
+     * If {@code true} use OkHttp lib, otherwise use Netty lib.
      *
      * @param useOkHttp
      * @return
@@ -107,7 +71,7 @@ public abstract class BaseGrpcApiClient implements AutoCloseable {
     }
 
     /**
-     * Setter for {@link #sslTransport}.
+     * If {@code true} use SSL transport.
      *
      * @param sslTransport
      * @return
@@ -123,79 +87,151 @@ public abstract class BaseGrpcApiClient implements AutoCloseable {
      * @return
      */
     public BaseGrpcApiClient disableSslTransport() {
-        this.sslTransport = false;
+        return setSslTransport(false);
+    }
+
+    /**
+     * Enable SSL transport.
+     *
+     * @param nettySslContext  for Netty SSL client
+     * @param sslSocketFactory for OkHttp SSL client
+     * @return
+     */
+    public BaseGrpcApiClient enableSslTransport(io.netty.handler.ssl.SslContext nettySslContext,
+            SSLSocketFactory sslSocketFactory) {
+        setSslTransport(true);
+        this.nettySslContext = nettySslContext;
+        this.sslSocketFactory = sslSocketFactory;
         return this;
     }
 
-    /*----------------------------------------------------------------------*/
-
     /**
-     * Initializing method.
+     * Get the associated {@link io.netty.handler.ssl.SslContext} used by Netty.
      *
      * @return
-     * @throws Exception
      */
-    public BaseGrpcApiClient init() throws Exception {
-        if (retryPolicy == null) {
-            retryPolicy = RetryPolicy.DEFAULT_RETRY_POLICY;
-        }
+    public io.netty.handler.ssl.SslContext getNettySslContext() {
+        return nettySslContext;
+    }
 
-        //parse server hosts and ports
-        String tokens[] = serverHostsAndPorts.split("[,;\\s]+");
-        int numServers = tokens.length;
-        hostAndPorts = new HostAndPort[numServers];
-        for (int i = 0; i < numServers; i++) {
-            hostAndPorts[i] = new HostAndPort(tokens[i]);
-        }
-
+    /**
+     * Associate a {@link io.netty.handler.ssl.SslContext} used by Netty.
+     *
+     * @param nettySslContext
+     * @return
+     */
+    public BaseGrpcApiClient setNettySslContext(io.netty.handler.ssl.SslContext nettySslContext) {
+        this.nettySslContext = nettySslContext;
         return this;
     }
 
     /**
-     * Destroy method.
+     * Get the associated {@link SSLSocketFactory} used by OkHttp.
+     *
+     * @return
      */
-    public void destroy() {
-        //EMPTY
+    public SSLSocketFactory getSslSocketFactory() {
+        return sslSocketFactory;
     }
 
     /**
-     * {@inheritDoc}
+     * Associate a {@link SSLSocketFactory} used by OkHttp.
+     *
+     * @param sslSocketFactory
+     * @return
      */
-    @Override
-    public void close() {
-        destroy();
+    public BaseGrpcApiClient setSslSocketFactory(SSLSocketFactory sslSocketFactory) {
+        this.sslSocketFactory = sslSocketFactory;
+        return this;
     }
 
-    private Random RANDOM = new Random(System.currentTimeMillis());
-
-    protected int calcServerIndexHash(RetryPolicy retryPolicy) {
-        int serverIndexHash = 0;
-        int numServers = hostAndPorts.length;
-        switch (retryPolicy.getRetryType()) {
-        case FAILOVER:
-            serverIndexHash = retryPolicy.getCounter();
-            break;
-        case ROUND_ROBIN:
-            if (retryPolicy.getCounter() == 0) {
-                serverIndexHash = RANDOM.nextInt(Short.MAX_VALUE) % numServers;
-            } else {
-                serverIndexHash = retryPolicy.getLastServerIndexHash() + 1;
-            }
-            retryPolicy.setLastServerIndexHash(serverIndexHash);
-            break;
-        case RANDOM_FAILOVER:
-            if (retryPolicy.getCounter() == 0 || numServers < 2) {
-                serverIndexHash = 0;
-            } else {
-                serverIndexHash = 1 + (RANDOM.nextInt(Short.MAX_VALUE) % (numServers - 1));
-            }
-            break;
-        case RANDOM:
-        default:
-            serverIndexHash = RANDOM.nextInt(Short.MAX_VALUE);
-            break;
+    /**
+     * @param hostAndPort
+     * @return
+     */
+    protected ManagedChannel buildManagedChannelOkHttp(HostAndPort hostAndPort) {
+        OkHttpChannelBuilder channelBuilder = OkHttpChannelBuilder.forAddress(hostAndPort.host, hostAndPort.port);
+        if (isSslTransport()) {
+            SSLSocketFactory sslSocketFactory = this.sslSocketFactory != null ?
+                    this.sslSocketFactory :
+                    (SSLSocketFactory) SSLSocketFactory.getDefault();
+            channelBuilder.useTransportSecurity().useTransportSecurity().sslSocketFactory(sslSocketFactory);
+        } else {
+            channelBuilder.usePlaintext();
         }
-        return serverIndexHash;
+        return channelBuilder.build();
     }
 
+    /**
+     * @param hostAndPort
+     * @return
+     */
+    protected ManagedChannel buildManagedChannelNetty(HostAndPort hostAndPort) throws SSLException {
+        NettyChannelBuilder channelBuilder = NettyChannelBuilder.forAddress(hostAndPort.host, hostAndPort.port);
+        if (isSslTransport()) {
+            io.netty.handler.ssl.SslContext sslContext = nettySslContext != null ?
+                    nettySslContext :
+                    io.grpc.netty.GrpcSslContexts.forClient().clientAuth(io.netty.handler.ssl.ClientAuth.OPTIONAL)
+                            .build();
+            channelBuilder.useTransportSecurity().negotiationType(io.grpc.netty.NegotiationType.TLS)
+                    .sslContext(sslContext);
+        } else {
+            channelBuilder.usePlaintext();
+        }
+        return channelBuilder.build();
+    }
+
+    /**
+     * Build request object, ready for making API call.
+     *
+     * @param apiName
+     * @param appId
+     * @param accessToken
+     * @param encoding
+     * @param params
+     * @return
+     * @since 1.0.0
+     */
+    protected PApiServiceProto.PApiContext buildRequest(String apiName, String appId, String accessToken,
+            PApiServiceProto.PDataEncoding encoding, Object params) {
+        PApiServiceProto.PApiAuth apiAuth = PApiServiceProto.PApiAuth.newBuilder().setAppId(appId)
+                .setAccessToken(accessToken).build();
+
+        JsonNode paramsJson = params instanceof JsonNode ? (JsonNode) params : SerializationUtils.toJson(params);
+        PApiServiceProto.PApiParams apiParams = PApiServiceProto.PApiParams.newBuilder().setEncoding(encoding)
+                .setExpectedReturnEncoding(PApiServiceProto.PDataEncoding.JSON_DEFAULT)
+                .setParamsData(GrpcUtils.encodeFromJson(encoding, paramsJson)).build();
+
+        PApiServiceProto.PApiContext request = PApiServiceProto.PApiContext.newBuilder().setApiName(apiName)
+                .setApiAuth(apiAuth).setApiParams(apiParams).build();
+        return request;
+    }
+
+    /**
+     * Execute a function with retry.
+     *
+     * @param retryPolicy
+     * @param func
+     * @param <T>
+     * @return
+     * @since 1.0.0
+     */
+    protected <T> T doWithRetry(RetryPolicy retryPolicy, Function<RetryPolicy, T> func) {
+        while (!retryPolicy.isMaxRetriesExceeded()) {
+            try {
+                return func.apply(retryPolicy);
+            } catch (Exception e) {
+                try {
+                    retryPolicy.sleep();
+                } catch (InterruptedException e1) {
+                }
+                if (retryPolicy.isMaxRetriesExceeded()) {
+                    throw e;
+                } else {
+                    continue;
+                }
+            }
+        }
+        return null;
+    }
 }

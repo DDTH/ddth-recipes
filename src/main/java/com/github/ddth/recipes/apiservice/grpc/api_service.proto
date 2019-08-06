@@ -21,9 +21,9 @@ option optimize_for = SPEED;
 import "google/protobuf/empty.proto";
 
 enum PDataEncoding {
-    JSON_DEFAULT    = 0;    // Request: default=JSON string, Result: default=same encoding as request's
-    JSON_STRING     = 1;    // Data is encoded as JSON string
-    JSON_GZIP       = 2;    // Data is encoded as gzipped JSON string
+    JSON_DEFAULT    = 0;    // Request: default='JSON string' /  Result: default=same encoding as request's
+    JSON_STRING     = 1;    // Data is encoded as 'JSON string'
+    JSON_GZIP       = 2;    // Data is encoded as 'gzipped JSON string'
 }
 
 message PApiAuth {

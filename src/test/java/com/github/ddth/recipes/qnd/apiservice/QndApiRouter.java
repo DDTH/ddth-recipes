@@ -1,18 +1,13 @@
 package com.github.ddth.recipes.qnd.apiservice;
 
+import com.github.ddth.recipes.apiservice.*;
+import com.github.ddth.recipes.apiservice.auth.AllowAllApiAuthenticator;
+
 import java.util.Date;
 import java.util.HashMap;
 
-import com.github.ddth.recipes.apiservice.ApiAuth;
-import com.github.ddth.recipes.apiservice.ApiContext;
-import com.github.ddth.recipes.apiservice.ApiParams;
-import com.github.ddth.recipes.apiservice.ApiResult;
-import com.github.ddth.recipes.apiservice.ApiRouter;
-import com.github.ddth.recipes.apiservice.auth.AllowAllApiAuthenticator;
-
 public class QndApiRouter {
-
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         try (ApiRouter router = new ApiRouter()) {
             router.init();
 
@@ -21,9 +16,10 @@ public class QndApiRouter {
             router.registerApiHandler("echo",
                     (context, auth, params) -> new ApiResult(ApiResult.STATUS_OK, ApiResult.MSG_OK,
                             params.getAllParams()));
-            ApiResult result = router.callApi(new ApiContext("echo"),
-                    new ApiAuth("app-id", "access-token"),
-                    new ApiParams(new HashMap<String, Object>() {
+            ApiResult result = router.callApi(new ApiContext("echo"), new ApiAuth("app-id", "access-token"),
+                    new ApiParams(new HashMap<>() {
+                        private static final long serialVersionUID = 1L;
+
                         {
                             put("year", 2018);
                         }
@@ -37,5 +33,4 @@ public class QndApiRouter {
             System.out.println(router.callApi(context, auth, null));
         }
     }
-
 }

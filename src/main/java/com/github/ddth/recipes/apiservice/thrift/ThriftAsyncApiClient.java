@@ -7,7 +7,6 @@ import com.github.ddth.recipes.apiservice.clientpool.ApiClientPool;
 import com.github.ddth.recipes.apiservice.clientpool.HostAndPort;
 import com.github.ddth.recipes.apiservice.clientpool.IClientFactory;
 import com.github.ddth.recipes.apiservice.thrift.def.*;
-import com.google.common.collect.Sets;
 import org.apache.thrift.async.AsyncMethodCallback;
 import org.apache.thrift.async.TAsyncClientManager;
 import org.apache.thrift.protocol.TBinaryProtocol;
@@ -20,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
@@ -32,11 +30,11 @@ import java.util.concurrent.atomic.AtomicLong;
  * @since v0.2.0
  */
 public class ThriftAsyncApiClient extends BaseThriftApiClient implements IThriftAsyncApiClient {
-
     private final Logger LOGGER = LoggerFactory.getLogger(ThriftAsyncApiClient.class);
 
     private ApiClientPool<TApiService.AsyncClient, TApiService.AsyncIface> clientPool;
     private ExecutorService executorService;
+    private boolean myOwnExecutorService = false;
 
     /*----------------------------------------------------------------------*/
     private final class ClientFactory implements IClientFactory<TApiService.AsyncClient> {
@@ -46,20 +44,18 @@ public class ThriftAsyncApiClient extends BaseThriftApiClient implements IThrift
         @Override
         public TApiService.AsyncClient create(int serverIndexHash) throws Exception {
             HostAndPort[] serverHostAndPortList = getServerHostAndPortList();
-            HostAndPort hostAndPort = serverHostAndPortList[serverIndexHash
-                    % serverHostAndPortList.length];
+            HostAndPort hostAndPort = serverHostAndPortList[serverIndexHash % serverHostAndPortList.length];
             TNonblockingTransport transport;
             if (isSslTransport()) {
-                throw new IllegalArgumentException("This client does not support SSL transport!");
+                //see: https://github.com/apache/thrift/blob/master/lib/java/test/org/apache/thrift/test/TestServer.java#L180
+                throw new IllegalArgumentException("This async-client does not support SSL transport.");
             } else {
-                transport = new TNonblockingSocket(hostAndPort.host, hostAndPort.port,
-                        getTimeoutMs());
+                transport = new TNonblockingSocket(hostAndPort.host, hostAndPort.port, getTimeout());
             }
-            TProtocolFactory protocolFactory = isCompactProtocol()
-                    ? new TCompactProtocol.Factory()
-                    : new TBinaryProtocol.Factory();
-            return new TApiService.AsyncClient(protocolFactory, new TAsyncClientManager(),
-                    transport);
+            TProtocolFactory protocolFactory = isCompactProtocol() ?
+                    new TCompactProtocol.Factory() :
+                    new TBinaryProtocol.Factory();
+            return new TApiService.AsyncClient(protocolFactory, new TAsyncClientManager(), transport);
         }
 
         /**
@@ -77,11 +73,6 @@ public class ThriftAsyncApiClient extends BaseThriftApiClient implements IThrift
         public int getNumServers() {
             return getServerHostAndPortList().length;
         }
-
-        private final Set<Integer> RESTARTABLE_CAUSES = Sets
-                .newHashSet(TTransportException.UNKNOWN, TTransportException.NOT_OPEN,
-                        TTransportException.TIMED_OUT, TTransportException.END_OF_FILE,
-                        TTransportException.CORRUPTED_DATA);
 
         /**
          * {@inheritDoc}
@@ -103,17 +94,14 @@ public class ThriftAsyncApiClient extends BaseThriftApiClient implements IThrift
      */
     public ThriftAsyncApiClient init() throws Exception {
         super.init();
-
         if (clientPool == null) {
-            clientPool = new ApiClientPool<>(TApiService.AsyncClient.class,
-                    TApiService.AsyncIface.class, new ClientFactory(), getRetryPolicy()).init();
+            clientPool = new ApiClientPool<>(TApiService.AsyncClient.class, TApiService.AsyncIface.class,
+                    new ClientFactory(), getRetryPolicy()).init();
         }
-
         if (executorService == null) {
-            executorService = Executors
-                    .newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+            executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+            myOwnExecutorService = true;
         }
-
         return this;
     }
 
@@ -121,16 +109,6 @@ public class ThriftAsyncApiClient extends BaseThriftApiClient implements IThrift
      * Destroy method.
      */
     public void destroy() {
-        if (executorService != null) {
-            try {
-                executorService.shutdown();
-            } catch (Exception e) {
-                LOGGER.warn(e.getMessage(), e);
-            } finally {
-                executorService = null;
-            }
-        }
-
         if (clientPool != null) {
             try {
                 clientPool.destroy();
@@ -138,6 +116,16 @@ public class ThriftAsyncApiClient extends BaseThriftApiClient implements IThrift
                 LOGGER.warn(e.getMessage(), e);
             } finally {
                 clientPool = null;
+            }
+        }
+
+        if (executorService != null && myOwnExecutorService) {
+            try {
+                executorService.shutdown();
+            } catch (Exception e) {
+                LOGGER.warn(e.getMessage(), e);
+            } finally {
+                executorService = null;
             }
         }
 
@@ -153,7 +141,7 @@ public class ThriftAsyncApiClient extends BaseThriftApiClient implements IThrift
     }
 
     /*----------------------------------------------------------------------*/
-    private AtomicLong counter = new AtomicLong(0);
+    private AtomicLong taskCounter = new AtomicLong(0);
 
     /**
      * Return {@code true} if this client has pending tasks waiting to be executed.
@@ -161,12 +149,11 @@ public class ThriftAsyncApiClient extends BaseThriftApiClient implements IThrift
      * @return
      */
     public boolean hasPendingTasks() {
-        return counter.get() > 0;
+        return taskCounter.get() > 0;
     }
 
-    private <T> void submitTask(String method, AsyncMethodCallback<T> resultHandler,
-            Object... params) {
-        Class[] paramTypes = params != null ? new Class[params.length + 1] : new Class[1];
+    private <T> void submitTask(String method, AsyncMethodCallback<T> resultHandler, Object... params) {
+        Class<?>[] paramTypes = params != null ? new Class[params.length + 1] : new Class[1];
         if (params != null) {
             for (int i = 0; i < params.length; i++) {
                 paramTypes[i] = params[i].getClass();
@@ -176,45 +163,44 @@ public class ThriftAsyncApiClient extends BaseThriftApiClient implements IThrift
 
         Method m = ReflectionUtils.getMethod(method, TApiService.AsyncIface.class, paramTypes);
         if (m == null) {
-            throw new IllegalArgumentException("Invalid method [" + method + "]!");
+            throw new IllegalArgumentException("Invalid method [" + method + "].");
         }
-        counter.incrementAndGet();
+        taskCounter.incrementAndGet();
         executorService.execute(() -> {
             try {
+                Object[] paramsList = params != null ? new Object[params.length + 1] : new Object[1];
+                if (params != null) {
+                    for (int i = 0; i < params.length; i++) {
+                        paramsList[i] = params[i];
+                    }
+                }
                 TApiService.AsyncIface clientObj = clientPool.borrowObject();
-                try {
-                    Object[] paramsList =
-                            params != null ? new Object[params.length + 1] : new Object[1];
-                    if (params != null) {
-                        for (int i = 0; i < params.length; i++) {
-                            paramsList[i] = params[i];
+                paramsList[paramsList.length - 1] = new AsyncMethodCallback<T>() {
+                    private void finish() {
+                        clientPool.returnObject(clientObj);
+                        taskCounter.decrementAndGet();
+                    }
+
+                    @Override
+                    public void onComplete(T aResult) {
+                        try {
+                            resultHandler.onComplete(aResult);
+                        } finally {
+                            finish();
                         }
                     }
-                    paramsList[paramsList.length - 1] = new AsyncMethodCallback<T>() {
-                        @Override
-                        public void onComplete(T aResult) {
-                            try {
-                                resultHandler.onComplete(aResult);
-                            } finally {
-                                counter.decrementAndGet();
-                                clientPool.returnObject(clientObj);
-                            }
-                        }
 
-                        @Override
-                        public void onError(Exception e) {
-                            try {
-                                resultHandler.onError(e);
-                            } finally {
-                                counter.decrementAndGet();
-                                clientPool.returnObject(clientObj);
-                            }
+                    @Override
+                    public void onError(Exception e) {
+                        try {
+                            resultHandler.onError(e);
+                        } finally {
+                            finish();
                         }
-                    };
+                    }
+                };
+                if (clientObj != null) {
                     m.invoke(clientObj, paramsList);
-                } catch (Exception e) {
-                    clientPool.returnObject(clientObj);
-                    throw e;
                 }
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
@@ -234,15 +220,6 @@ public class ThriftAsyncApiClient extends BaseThriftApiClient implements IThrift
      * {@inheritDoc}
      */
     @Override
-    public void check(String appId, String accessToken,
-            AsyncMethodCallback<TApiResult> resultHandler) {
-        check(new TApiAuth().setAppId(appId).setAccessToken(accessToken), resultHandler);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void check(TApiAuth apiAuth, AsyncMethodCallback<TApiResult> resultHandler) {
         submitTask("check", resultHandler, apiAuth);
     }
@@ -251,24 +228,13 @@ public class ThriftAsyncApiClient extends BaseThriftApiClient implements IThrift
      * {@inheritDoc}
      */
     @Override
-    public void call(String apiName, String appId, String accessToken, Object params,
+    public void call(String apiName, String appId, String accessToken, TDataEncoding encoding, Object params,
             AsyncMethodCallback<TApiResult> resultHandler) {
-        call(apiName, appId, accessToken, TDataEncoding.JSON_DEFAULT, params, resultHandler);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void call(String apiName, String appId, String accessToken, TDataEncoding encoding,
-            Object params, AsyncMethodCallback<TApiResult> resultHandler) {
         TApiAuth apiAuth = new TApiAuth().setAppId(appId).setAccessToken(accessToken);
-        JsonNode paramsJson = params instanceof JsonNode
-                ? (JsonNode) params
-                : SerializationUtils.toJson(params);
+        JsonNode paramsJson = params instanceof JsonNode ? (JsonNode) params : SerializationUtils.toJson(params);
         TApiParams apiParams = new TApiParams().setEncoding(encoding)
                 .setExpectedReturnEncoding(TDataEncoding.JSON_DEFAULT)
-                .setParamsData(ThriftApiUtils.encodeFromJson(encoding, paramsJson));
+                .setParamsData(ThriftUtils.encodeFromJson(encoding, paramsJson));
         call(apiName, apiAuth, apiParams, resultHandler);
     }
 
