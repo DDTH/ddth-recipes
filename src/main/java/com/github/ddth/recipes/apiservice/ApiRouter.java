@@ -1,14 +1,14 @@
 package com.github.ddth.recipes.apiservice;
 
-import com.github.ddth.commons.utils.DateFormatUtils;
-import com.github.ddth.commons.utils.MapUtils;
 import com.github.ddth.recipes.apiservice.auth.AllowAllApiAuthenticator;
+import com.github.ddth.recipes.apiservice.filters.AddPerfInfoFilter;
+import com.github.ddth.recipes.apiservice.filters.AuthenticationFilter;
+import com.github.ddth.recipes.apiservice.filters.LoggingFilter;
 import com.google.common.util.concurrent.AtomicLongMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -16,18 +16,115 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Route API calls to handlers.
  *
+ * <p>Since {@code v1.1.0}, method {@link #init()} will create default {@link ApiFilter} with the following rules:</p>
+ * <ul>
+ * <li>If {@link #getApiAuthenticator()} returns non-null value it will be used to create a {@link AuthenticationFilter}, and the filter is prepended to filter chain.</li>
+ * <li>If {@link #getApiLogger()} returns non-null value it will be used to create a {@link LoggingFilter}, and the filter is prepended to filter chain.</li>
+ * <li>If {@link #isAddPerfInfoToResult()} returns {@code true} a {@link AddPerfInfoFilter} will be created and prepended to filter chain.</li>
+ * </ul>
+ *
  * @author Thanh Nguyen <btnguyen2k@gmail.com>
- * @since v0.2.0
+ * @since 0.2.0
  */
 public class ApiRouter implements AutoCloseable {
     private Logger LOGGER = LoggerFactory.getLogger(ApiRouter.class);
 
-    private Map<String, IApiHandler> apiHandlers = new ConcurrentHashMap<>();
-    private IApiAuthenticator apiAuthenticator = AllowAllApiAuthenticator.instance;
-    private IApiLogger apiLogger;
-
     private AtomicLong totalConcurrency = new AtomicLong(0);
     private AtomicLongMap<String> apiConcurrency = AtomicLongMap.create();
+
+    private Map<String, IApiHandler> apiHandlers = new ConcurrentHashMap<>();
+
+    private IApiAuthenticator apiAuthenticator = AllowAllApiAuthenticator.instance;
+    private IApiLogger apiLogger;
+    private boolean addPerfInfoToResult = true;
+
+    private ApiFilter apiFilter;
+
+    /**
+     * Authenticator used to authenticate API calls.
+     *
+     * @return
+     */
+    public IApiAuthenticator getApiAuthenticator() {
+        return apiAuthenticator;
+    }
+
+    /**
+     * Authenticator used to authenticate API calls.
+     *
+     * @param apiAuthenticator
+     * @return
+     */
+    public ApiRouter setApiAuthenticator(IApiAuthenticator apiAuthenticator) {
+        this.apiAuthenticator = apiAuthenticator;
+        return this;
+    }
+
+    /**
+     * Logger used to log API calls.
+     *
+     * @param logger
+     * @return
+     * @since 1.0.0
+     */
+    public ApiRouter setApiLogger(IApiLogger logger) {
+        this.apiLogger = logger;
+        return this;
+    }
+
+    /**
+     * Logger used to log API calls.
+     *
+     * @return
+     * @since 1.0.0
+     */
+    public IApiLogger getApiLogger() {
+        return apiLogger;
+    }
+
+    /**
+     * Filter used to intercept API call and do some pre-processing/post-processing.
+     *
+     * @return
+     * @since 1.1.0
+     */
+    public ApiFilter getApiFilter() {
+        return apiFilter;
+    }
+
+    /**
+     * Filter used to intercept API call and do some pre-processing/post-processing.
+     *
+     * @param apiFilter
+     * @return
+     * @since 1.1.0
+     */
+    public ApiRouter setApiFilter(ApiFilter apiFilter) {
+        this.apiFilter = apiFilter;
+        return this;
+    }
+
+    /**
+     * If {@code true}, API performance info will be added to api result as debug data.
+     *
+     * @return
+     * @since 1.1.0
+     */
+    public boolean isAddPerfInfoToResult() {
+        return addPerfInfoToResult;
+    }
+
+    /**
+     * If {@code true}, API performance info will be added to api result as debug data.
+     *
+     * @param addPerfInfoToResult
+     * @return
+     * @since 1.1.0
+     */
+    public ApiRouter setAddPerfInfoToResult(boolean addPerfInfoToResult) {
+        this.addPerfInfoToResult = addPerfInfoToResult;
+        return this;
+    }
 
     /**
      * Init method.
@@ -35,9 +132,17 @@ public class ApiRouter implements AutoCloseable {
      * @return
      */
     public ApiRouter init() {
-        if (getApiAuthenticator() == null) {
-            setApiAuthenticator(AllowAllApiAuthenticator.instance);
+        ApiFilter myFilter = getApiFilter();
+        if (apiAuthenticator != null) {
+            myFilter = new AuthenticationFilter(this, myFilter, apiAuthenticator);
         }
+        if (apiLogger != null) {
+            myFilter = new LoggingFilter(this, myFilter, apiLogger);
+        }
+        if (addPerfInfoToResult) {
+            myFilter = new AddPerfInfoFilter(this, myFilter);
+        }
+        setApiFilter(myFilter);
         return this;
     }
 
@@ -56,15 +161,6 @@ public class ApiRouter implements AutoCloseable {
         destroy();
     }
 
-    /**
-     * Getter for {@link #apiHandlers}.
-     *
-     * @return
-     */
-    public Map<String, IApiHandler> getApiHandlers() {
-        return Collections.unmodifiableMap(apiHandlers);
-    }
-
     private IApiHandler catchAllApiHandler = null;
     public final static String CATCHALL_API_NAME = "*";
 
@@ -75,6 +171,7 @@ public class ApiRouter implements AutoCloseable {
      * @return
      */
     public ApiRouter setCatchAllHandler(IApiHandler handler) {
+        catchAllApiHandler = handler;
         return registerApiHandler(CATCHALL_API_NAME, handler);
     }
 
@@ -85,7 +182,17 @@ public class ApiRouter implements AutoCloseable {
      * @return
      */
     public ApiRouter unsetCatchAllHandler() {
+        catchAllApiHandler = null;
         return unregisterApiHandler(CATCHALL_API_NAME);
+    }
+
+    /**
+     * Getter for {@link #apiHandlers}.
+     *
+     * @return
+     */
+    public Map<String, IApiHandler> getApiHandlers() {
+        return Collections.unmodifiableMap(apiHandlers);
     }
 
     /**
@@ -99,8 +206,22 @@ public class ApiRouter implements AutoCloseable {
         if (apiHandlers != null) {
             this.apiHandlers.putAll(apiHandlers);
         }
-        catchAllApiHandler = this.apiHandlers.get(CATCHALL_API_NAME);
+        IApiHandler catchAll = this.apiHandlers.get(CATCHALL_API_NAME);
+        if (catchAll != null) {
+            catchAllApiHandler = catchAll;
+        }
         return this;
+    }
+
+    /**
+     * Get the API handler for an api name.
+     *
+     * @param apiName
+     * @return
+     * @since 1.1.0
+     */
+    public IApiHandler getApiHandler(String apiName) {
+        return apiName != null ? apiHandlers.get(apiName) : null;
     }
 
     /**
@@ -154,26 +275,6 @@ public class ApiRouter implements AutoCloseable {
     }
 
     /**
-     * Getter for {@link #apiAuthenticator}.
-     *
-     * @return
-     */
-    public IApiAuthenticator getApiAuthenticator() {
-        return apiAuthenticator;
-    }
-
-    /**
-     * Setter for {@link #apiAuthenticator}.
-     *
-     * @param apiAuthenticator
-     * @return
-     */
-    public ApiRouter setApiAuthenticator(IApiAuthenticator apiAuthenticator) {
-        this.apiAuthenticator = apiAuthenticator;
-        return this;
-    }
-
-    /**
      * Get number of total concurrent API calls.
      *
      * @return
@@ -194,50 +295,6 @@ public class ApiRouter implements AutoCloseable {
     }
 
     /**
-     * Logger used to log API calls.
-     *
-     * @param logger
-     * @return
-     * @since 1.0.0
-     */
-    public ApiRouter setApiLogger(IApiLogger logger) {
-        this.apiLogger = logger;
-        return this;
-    }
-
-    /**
-     * Logger used to log API calls.
-     *
-     * @return
-     * @since 1.0.0
-     */
-    protected IApiLogger getApiLogger() {
-        return apiLogger;
-    }
-
-    /**
-     * Setter for {@link #apiLogger}.
-     *
-     * @param logger
-     * @return
-     * @deprecated use {@link #setApiLogger(IApiLogger)}
-     */
-    public ApiRouter setApiLogger(Logger logger) {
-        return this;
-    }
-
-    /**
-     * Setter for {@link #apiLogger}.
-     *
-     * @param loggerName
-     * @return
-     * @deprecated use {@link #setApiLogger(IApiLogger)}
-     */
-    public ApiRouter setApiLoggerName(String loggerName) {
-        return this;
-    }
-
-    /**
      * Call an API.
      *
      * @param context
@@ -247,46 +304,30 @@ public class ApiRouter implements AutoCloseable {
      * @throws Exception
      */
     public ApiResult callApi(ApiContext context, ApiAuth auth, ApiParams params) {
-        Date now = new Date();
-        ApiResult apiResult = null;
         String apiName = context.getApiName();
         try {
+            ApiResult apiResult;
             totalConcurrency.incrementAndGet();
             apiConcurrency.incrementAndGet(apiName);
-            if (apiLogger != null) {
-                apiLogger.preApiCall(totalConcurrency.get(), apiConcurrency.get(apiName), context, auth, params);
-            }
-
-            IApiAuthenticator apiAuthenticator = getApiAuthenticator();
-            if (apiAuthenticator != null && !apiAuthenticator.authenticate(context, auth)) {
-                apiResult = new ApiResult(ApiResult.STATUS_NO_PERMISSION,
-                        "App [" + auth.getAppId() + "] is not allowed to call api [" + apiName + "] via [" + context
-                                .getGateway() + "]");
-            } else {
-                try {
-                    IApiHandler apiHandler = apiName != null ? apiHandlers.get(apiName) : null;
-                    apiHandler = apiHandler != null ? apiHandler : catchAllApiHandler;
-                    if (apiHandler == null) {
-                        apiResult = new ApiResult(ApiResult.STATUS_NOT_IMPLEMENTED,
-                                "No handler for api [" + apiName + "]");
-                    } else {
-                        apiResult = apiHandler.handle(context, auth, params);
-                    }
-                } catch (Exception e) {
-                    apiResult = new ApiResult(ApiResult.STATUS_ERROR_SERVER,
-                            e.getClass().getName() + " - " + e.getMessage());
-                    LOGGER.error(e.getMessage(), e);
+            try {
+                IApiHandler apiHandler = getApiHandler(apiName);
+                apiHandler = apiHandler != null ? apiHandler : catchAllApiHandler;
+                if (apiHandler == null) {
+                    apiResult = new ApiResult(ApiResult.STATUS_NOT_IMPLEMENTED, "No handler for api [" + apiName + "]");
+                } else {
+                    apiResult = apiFilter != null ?
+                            apiFilter.call(apiHandler, context, auth, params) :
+                            apiHandler.handle(context, auth, params);
                 }
+            } catch (Exception e) {
+                apiResult = new ApiResult(ApiResult.STATUS_ERROR_SERVER,
+                        e.getClass().getName() + " - " + e.getMessage());
+                LOGGER.error(e.getMessage(), e);
             }
-            return apiResult.setDebugData(
-                    MapUtils.createMap("t", now, "tstr", DateFormatUtils.toString(now, DateFormatUtils.DF_ISO8601), "d",
-                            System.currentTimeMillis() - now.getTime(), "c", totalConcurrency.get()));
+            return apiResult;
         } finally {
             totalConcurrency.decrementAndGet();
             apiConcurrency.decrementAndGet(apiName);
-            if (apiLogger != null) {
-                apiLogger.postApiCall(System.currentTimeMillis() - now.getTime(), context, auth, params, apiResult);
-            }
         }
     }
 }

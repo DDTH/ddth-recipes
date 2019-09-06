@@ -1,5 +1,13 @@
 # ddth-recipes release notes
 
+## 1.1.0 - 2019-09-06
+
+- `API Service`:
+  - Refactor: new `ApiFilter` to intercept API calls and do pre-processing and post-processing work.
+  - Refactor `IApiLogger` and add built-in implementations in `com.github.ddth.recipes.apiservice.logging` package:
+    - API performance loggers: `AbstractPerfApiLogger`, `PrintStreamPerfApiLogger` and `Slf4jPerfApiLogger`.
+- Update dependency libs.
+
 ## 1.0.0 - 2019-08-05
 
 - Migrate to `Java 11`.

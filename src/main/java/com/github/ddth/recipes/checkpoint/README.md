@@ -21,7 +21,7 @@ Add `ddth-dao-jdbc` to Maven dependency list like this:
 Assuming you are writing a routine to process log records stored in a db table, ordered by unique log-id.
 Usually, your routine processes log records faster than they are written to the table.
 Hence, when you have processed the last record, you would sleep for a while, wake up and continue from what you left off.
-You may need to store last-processed log-id somewhere so that when the routine wakes up, it knows how/where to continue its task.
+You may need to store last-processed log-id somewhere so that when the routine wakes up it knows how/where to continue its task.
 
 In this use-case, checkpoint recipe would be handy. A checkpoint record has 3 attributes:
 

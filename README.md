@@ -8,7 +8,7 @@ Project home: [https://github.com/DDTH/ddth-recipes](https://github.com/DDTH/ddt
 
 ## Installation
 
-Latest release version: `1.0.0`. See [RELEASE-NOTES.md](RELEASE-NOTES.md).
+Latest release version: `1.1.0`. See [RELEASE-NOTES.md](RELEASE-NOTES.md).
 
 Maven dependency:
 
@@ -16,7 +16,7 @@ Maven dependency:
 <dependency>
 	<groupId>com.github.ddth</groupId>
 	<artifactId>ddth-recipes</artifactId>
-	<version>1.0.0</version>
+	<version>1.1.0</version>
 </dependency>
 ```
 

@@ -29,7 +29,7 @@
 
 		<version.ddth-dao>1.1.1</version.ddth-dao>
 		<version.ddth-commons>1.1.0</version.ddth-commons>
-		<version.grpc>1.22.1</version.grpc>
+		<version.grpc>1.23.0</version.grpc>
 	</properties>
 
 	<dependencies>
@@ -171,9 +171,9 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.10.4</version>
+				<version>3.1.1</version>
 				<configuration>
-					<additionalparam>-Xdoclint:none</additionalparam>
+					<additionalOptions>-Xdoclint:none</additionalOptions>
 				</configuration>
 			</plugin>
 			<plugin>

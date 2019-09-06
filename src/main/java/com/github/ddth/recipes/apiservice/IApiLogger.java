@@ -21,11 +21,14 @@ public interface IApiLogger {
     /**
      * This method is called right after API is invoked.
      *
-     * @param durationMs duration (in milliseconds) the API handler took to process the call
+     * @param durationMs       duration (in milliseconds) the API handler took to process the call
+     * @param totalConcurrency total number of (all) concurrent API calls
+     * @param apiConcurrency   number of concurrent (this) API calls
      * @param context
      * @param auth
      * @param params
      * @param result
      */
-    void postApiCall(long durationMs, ApiContext context, ApiAuth auth, ApiParams params, ApiResult result);
+    void postApiCall(long durationMs, long totalConcurrency, long apiConcurrency, ApiContext context, ApiAuth auth,
+            ApiParams params, ApiResult result);
 }

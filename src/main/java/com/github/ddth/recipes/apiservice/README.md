@@ -13,8 +13,8 @@ API Service recipe creates a framework that help building API servers and client
 
 ### API Service over HTTP
 
-If you plan to build API service over HTTP only (for example: REST APIs),
-besides libraries required by the web-framework your project is using,
+If APIs are served over HTTP only (e.g. REST APIs)
+besides libraries required by the web-framework your project is using
 `ddth-commons-core` and `ddth-commons-serialization` are also needed:
 
 ```xml
@@ -31,8 +31,8 @@ besides libraries required by the web-framework your project is using,
 </dependency>
 ```
 
-API Service recipe provides only the skeleton to build your APIs.
-How APIs are served or called over HTTP is totally up to you.
+API Service recipe provides only the skeleton to build application's APIs.
+How APIs are served or called over HTTP is totally up to application.
 
 ### API Service over Apache Thrift
 
@@ -136,10 +136,10 @@ For client: same libraries as server. However, for client you can choose either 
 
 Start your API by implementing interface `IApiHandler`. Then, register APIs with the `ApiRouter`.
 `ApiRouter` is responsible for
-- Managing APIs (registering/unregistering)
-- Authenticating API calls (via `IApiAuthenticator`)
-- Routing API calls to handlers
-- Logging.
+- Managing APIs (registering/unregistering).
+- Authenticating API calls (via `IApiAuthenticator`).
+- Routing API calls to handlers.
+- [API filtering](#api-filtering).
 
 Example:
 
@@ -175,12 +175,26 @@ ApiAuth auth = new ApiAuth("app-id", "access-token");
 System.out.println(router.callApi(context, auth, null));
 ```
 
+## API Filtering
+
+_Filters are added since v1.1.0._
+
+Filters are plugable components that are used to intercept API call and do some pre-processing,
+intercept result and do post-processing before returning to caller.
+
+Filters can be chained together to form a chain.
+
+Implementing filter by extending abstract class `ApiFilter` and registering filter via `ApiRouter.setFilter()`.
+There are 3 built-in filters that can be used:
+- `AddPerfInfoFilter`: this filter adds api execution duration to the "debug" field of API's result.
+- `AuthenticationFilter`: this filter performs authentication check before calling API.
+- `LoggingFilter`: this filter performs logging before and after API call.
+
 ## Authenticating API Calls
 
 Client side: pass an `ApiAuth` when calling API.
 
 Server side: `ApiRouter` use `IApiAuthenticator` to validate the `ApiAuth` from client (see `ApiRouter.setApiAuthenticator(IApiAuthenticator)`).
-If none is set, the default `AllowAllApiAuthenticator` will be used.
 There are 2 built-in api-authenticators that can be used:
 - `AllowAllApiAuthenticator` (default): this authenticator simply passes any auth check, which means allowing all API calls.
 - `BasicApiAuthenticator`: this authenticator holds a map of `{app-id:access-code}` and uses it to validate the `ApiAuth` from client.

@@ -5,6 +5,7 @@ import com.github.ddth.commons.utils.SerializationUtils;
 import com.github.ddth.recipes.apiservice.*;
 import com.github.ddth.recipes.apiservice.auth.AllowAllApiAuthenticator;
 import com.github.ddth.recipes.apiservice.grpc.GrpcUtils;
+import com.github.ddth.recipes.apiservice.logging.PrintStreamPerfApiLogger;
 import com.github.ddth.recipes.apiservice.thrift.ThriftUtils;
 import io.grpc.Server;
 import io.netty.handler.ssl.SslContext;
@@ -42,6 +43,7 @@ public class QndApiServer {
     static ApiRouter buildApiRouter() {
         ApiRouter router = new ApiRouter();
         router.setApiAuthenticator(AllowAllApiAuthenticator.instance);
+        router.setApiLogger(PrintStreamPerfApiLogger.STDERR_LOGGER);
         router.init();
 
         //        router.setCatchAllHandler((context, auth, params) -> new ApiResult(ApiResult.STATUS_OK,
